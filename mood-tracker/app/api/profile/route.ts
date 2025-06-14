@@ -52,9 +52,7 @@ export async function PUT(request: NextRequest) {
         { error: 'Unauthorized' }, 
         { status: 401 }
       )
-    }
-
-    const { firstName, lastName, dateOfBirth, profilePicture } = await request.json()
+    }    const { firstName, lastName, dateOfBirth, profilePicture } = await request.json()
 
     // Validate input
     if (!firstName || !lastName) {
@@ -64,7 +62,15 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const updateData: any = {
+    interface UserUpdateData {
+      firstName: string
+      lastName: string
+      updatedAt: Date
+      dateOfBirth?: Date
+      profilePicture?: string
+    }
+
+    const updateData: UserUpdateData = {
       firstName,
       lastName,
       updatedAt: new Date()

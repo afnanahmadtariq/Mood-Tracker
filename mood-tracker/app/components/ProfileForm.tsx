@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useAuth } from '../context/AuthContext'
 
 export default function ProfileForm() {
@@ -143,12 +144,14 @@ export default function ProfileForm() {
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="https://example.com/your-photo.jpg"
-          />
+          />          
           {formData.profilePicture && (
             <div className="mt-2">
-              <img
+              <Image
                 src={formData.profilePicture}
                 alt="Profile preview"
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement

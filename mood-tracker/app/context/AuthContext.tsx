@@ -93,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false
       }
     } catch (error) {
+      console.error('Login error:', error)
       setError('Network error occurred')
       return false
     }
@@ -119,6 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false
       }
     } catch (error) {
+      console.error('Login error:', error)
       setError('Network error occurred')
       return false
     }
@@ -155,6 +157,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false
       }
     } catch (error) {
+      console.error('Login error:', error)
       setError('Network error occurred')
       return false
     }

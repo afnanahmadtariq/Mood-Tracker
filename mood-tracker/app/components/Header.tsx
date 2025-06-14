@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useAuth } from '../context/AuthContext'
 
 interface HeaderProps {
@@ -55,12 +56,14 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              {user?.profilePicture ? (
-                <img
+            >              
+            {user?.profilePicture ? (
+                <Image
                   className="h-8 w-8 rounded-full object-cover"
                   src={user.profilePicture}
                   alt="Profile"
+                  width={32}
+                  height={32}
                 />
               ) : (
                 <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
