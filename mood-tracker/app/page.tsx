@@ -17,10 +17,25 @@ export default function Home() {
   const fetchMoods = async () => {
     try {
       const response = await fetch('/api/mood')
+      
+      if (!response.ok) {
+        console.error('API responded with status:', response.status)
+        setMoods([]) // Set empty array as fallback
+        return
+      }
+      
       const data = await response.json()
-      setMoods(data)
+      
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setMoods(data)
+      } else {
+        console.error('API returned non-array data:', data)
+        setMoods([])
+      }
     } catch (error) {
       console.error('Error fetching moods:', error)
+      setMoods([]) // Set empty array as fallback
     } finally {
       setLoading(false)
     }
@@ -40,6 +55,17 @@ export default function Home() {
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Mood Tracker</h1>
           <p className="text-gray-600">Track your daily moods and emotions</p>
+          
+          {/* Database Connection Warning */}
+          {!loading && moods.length === 0 && (
+            <div className="mt-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-md">
+              <p className="text-sm">
+                <strong>Note:</strong> MongoDB is not connected. Your mood entries will not be saved permanently. 
+                <br />
+                To enable data persistence, please set up MongoDB and update your .env.local file.
+              </p>
+            </div>
+          )}
         </header>
 
         <div className="grid md:grid-cols-2 gap-8">

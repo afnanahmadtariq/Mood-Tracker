@@ -8,10 +8,14 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
   const [mood, setMood] = useState('')
   const [note, setNote] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
+    setSuccess(false)
     
     try {
       const response = await fetch('/api/mood', {
@@ -23,17 +27,38 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
       if (response.ok) {
         setMood('')
         setNote('')
+        setSuccess(true)
         onMoodSaved?.()
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(false), 3000)
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'Failed to save mood')
       }
     } catch (error) {
       console.error('Error saving mood:', error)
+      setError('Network error. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
   }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+          {error}
+        </div>
+      )}
+      
+      {/* Success Message */}
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+          Mood saved successfully! 🎉
+        </div>
+      )}
+
       <div>
         <label htmlFor="mood" className="block text-sm font-medium text-gray-700 mb-2">
           How are you feeling?

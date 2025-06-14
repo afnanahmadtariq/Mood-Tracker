@@ -16,8 +16,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newMood, { status: 201 })
   } catch (error) {
     console.error('Error creating mood:', error)
+    
+    // Return a more user-friendly error message
     return NextResponse.json(
-      { error: 'Failed to create mood' }, 
+      { 
+        error: 'Unable to save mood. Please check if MongoDB is running.',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, 
       { status: 500 }
     )
   }
@@ -32,9 +37,8 @@ export async function GET() {
     return NextResponse.json(moods)
   } catch (error) {
     console.error('Error fetching moods:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch moods' }, 
-      { status: 500 }
-    )
+    
+    // Return empty array when database is not available
+    return NextResponse.json([])
   }
 }
