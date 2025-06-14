@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mood Tracker
+
+A simple and beautiful web application to track your daily moods and emotions.
+
+## Features
+
+- 🎭 Track different moods with emoji indicators
+- 📝 Add optional notes to your mood entries
+- 📊 View your recent mood history
+- 🎨 Beautiful, responsive UI with Tailwind CSS
+- 💾 Data persistence with MongoDB
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+ 
+- MongoDB (local installation or MongoDB Atlas)
+
+### Installation
+
+1. Clone the repository
+2. Navigate to the mood-tracker directory
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+4. Set up your environment variables:
+   - Copy `.env.local.example` to `.env.local`
+   - Update the `MONGODB_URI` with your MongoDB connection string
+
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Usage
+
+1. **Track Your Mood**: Select how you're feeling from the dropdown menu
+2. **Add Notes** (Optional): Write about what's on your mind
+3. **Save**: Click "Save Mood" to record your entry
+4. **View History**: See your recent moods displayed on the right side
+
+## Available Moods
+
+- 😊 Happy
+- 😢 Sad  
+- 😠 Angry
+- 😄 Excited
+- 😰 Anxious
+- 😴 Tired
+- 😌 Calm
+- 🤔 Thoughtful
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB with Mongoose
+- **Development**: ESLint, TypeScript
+
+## Project Structure
+
+```
+app/
+├── api/mood/route.ts       # API endpoints for mood operations
+├── components/MoodForm.tsx # Form component for adding moods
+├── lib/mongodb.ts          # MongoDB connection utility
+├── models/Mood.ts          # Mongoose model for mood data
+├── globals.css             # Global styles
+├── layout.tsx              # Root layout component
+└── page.tsx                # Main page component
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API Endpoints
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `GET /api/mood` - Fetch all moods (sorted by date, newest first)
+- `POST /api/mood` - Create a new mood entry
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contributing
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feel free to submit issues and enhancement requests!
