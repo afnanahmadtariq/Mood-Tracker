@@ -78,149 +78,278 @@ export default function Home() {
   // Show authentication if user is not logged in
   if (!user) {
     return <AuthWrapper />
-  }
-  // Main authenticated app
+  }  // Main authenticated app
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6 lg:space-y-8">
         {activeTab === 'mood' ? (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Header Section */}
-            <div className="text-center space-y-3">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            <div className="text-center space-y-2 sm:space-y-3">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
                 How are you feeling today? 
                 <span className="text-blue-600 ml-2">💭</span>
               </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
                 Take a moment to check in with yourself. Your emotions matter and tracking them can help you understand patterns in your well-being.
               </p>
             </div>
 
-            {/* Mood Form Section */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <span className="text-blue-600 text-xl">📝</span>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">Record Your Mood</h2>
-                  <p className="text-gray-600">Share how you&apos;re feeling right now</p>
+            {/* Desktop Layout: Side by side */}
+            <div className="hidden lg:grid lg:grid-cols-5 gap-8 h-[calc(100vh-280px)]">
+              {/* Mood Form Section - Left Side */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 h-full overflow-y-auto hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <span className="text-blue-600 text-xl">📝</span>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-800">Record Your Mood</h2>
+                      <p className="text-gray-600 text-sm">Share how you&apos;re feeling right now</p>
+                    </div>
+                  </div>
+                  <MoodForm onMoodSaved={refreshMoods} />
                 </div>
               </div>
-              <MoodForm onMoodSaved={refreshMoods} />
-            </div>
 
-            {/* Mood History Section */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                    <span className="text-green-600 text-xl">📊</span>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Your Mood Journey</h2>
-                    <p className="text-gray-600">Track your emotional patterns over time</p>
-                  </div>
-                </div>
-                {moods.length > 0 && (
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Total entries</p>
-                    <p className="text-2xl font-bold text-blue-600">{moods.length}</p>
-                  </div>
-                )}
-              </div>
-              
-              {moodLoading ? (
-                <div className="text-center py-12">
-                  <div className="relative inline-block">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
-                  </div>
-                  <p className="text-gray-600 text-lg">Loading your mood history<span className="loading-dots"></span></p>
-                </div>
-              ) : moods.length === 0 ? (
-                <div className="text-center py-16 space-y-4">
-                  <div className="text-6xl mb-4">🌱</div>
-                  <div className="space-y-2">
-                    <p className="text-xl font-semibold text-gray-700">Your mood journey starts here!</p>
-                    <p className="text-gray-500 max-w-md mx-auto">
-                      No moods recorded yet. Start by sharing how you&apos;re feeling above to begin tracking your emotional well-being.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => document.querySelector('select')?.focus()}
-                    className="mt-6 inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  >
-                    <span className="mr-2">📝</span>
-                    Record your first mood
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {moods.map((moodEntry, index) => (
-                    <div 
-                      key={moodEntry._id} 
-                      className="card-hover border border-gray-200 rounded-xl p-6 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-3">
-                            <div className="text-3xl">{getMoodEmoji(moodEntry.mood)}</div>
-                            <div>
-                              <p className="text-xl font-bold text-gray-800">{moodEntry.mood}</p>
-                              <p className="text-sm text-gray-500">
-                                {getTimeAgo(moodEntry.date)}
-                              </p>
-                            </div>
-                          </div>
-                          {moodEntry.note && (
-                            <div className="bg-blue-50 border-l-4 border-blue-200 p-4 rounded-r-lg">
-                              <p className="text-gray-700 italic">&ldquo;{moodEntry.note}&rdquo;</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right text-sm text-gray-400 ml-6">
-                          <div className="font-medium">
-                            {new Date(moodEntry.date).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </div>
-                          <div className="text-xs">
-                            {new Date(moodEntry.date).toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </div>
-                        </div>
+              {/* Mood History Section - Right Side */}
+              <div className="lg:col-span-3">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 h-full flex flex-col hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center justify-between mb-6 flex-shrink-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                        <span className="text-green-600 text-xl">📊</span>
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-800">Your Mood Journey</h2>
+                        <p className="text-gray-600 text-sm">Track your emotional patterns over time</p>
                       </div>
                     </div>
-                  ))}
+                    {moods.length > 0 && (
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">Total entries</p>
+                        <p className="text-xl font-bold text-blue-600">{moods.length}</p>
+                      </div>
+                    )}
+                  </div>
                   
-                  {/* Mood Summary Stats */}
-                  {moods.length >= 3 && (
-                    <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                        <span className="mr-2">📈</span>
-                        Recent Mood Insights
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div>
-                          <span className="font-medium">Most recent mood:</span> {moods[0]?.mood}
+                  <div className="flex-1 overflow-y-auto">
+                    {moodLoading ? (
+                      <div className="text-center py-12">
+                        <div className="relative inline-block">
+                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
                         </div>
-                        <div>
-                          <span className="font-medium">Entries this week:</span> {moods.filter(mood => 
-                            new Date(mood.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-                          ).length}
+                        <p className="text-gray-600 text-lg">Loading your mood history<span className="loading-dots"></span></p>
+                      </div>
+                    ) : moods.length === 0 ? (
+                      <div className="text-center py-16 space-y-4">
+                        <div className="text-5xl mb-4">🌱</div>
+                        <div className="space-y-2">
+                          <p className="text-lg font-semibold text-gray-700">Your mood journey starts here!</p>
+                          <p className="text-gray-500 max-w-md mx-auto text-sm">
+                            No moods recorded yet. Start by sharing how you&apos;re feeling to begin tracking your emotional well-being.
+                          </p>
                         </div>
                       </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {moods.map((moodEntry, index) => (
+                          <div 
+                            key={moodEntry._id} 
+                            className="card-hover border border-gray-200 rounded-xl p-4 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
+                            style={{ animationDelay: `${index * 0.05}s` }}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <div className="text-2xl">{getMoodEmoji(moodEntry.mood)}</div>
+                                  <div>
+                                    <p className="text-lg font-bold text-gray-800">{moodEntry.mood}</p>
+                                    <p className="text-xs text-gray-500">
+                                      {getTimeAgo(moodEntry.date)}
+                                    </p>
+                                  </div>
+                                </div>
+                                {moodEntry.note && (
+                                  <div className="bg-blue-50 border-l-4 border-blue-200 p-3 rounded-r-lg">
+                                    <p className="text-gray-700 italic text-sm">&ldquo;{moodEntry.note}&rdquo;</p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-right text-xs text-gray-400 ml-4 flex-shrink-0">
+                                <div className="font-medium">
+                                  {new Date(moodEntry.date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric'
+                                  })}
+                                </div>
+                                <div>
+                                  {new Date(moodEntry.date).toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Mood Summary Stats */}
+                        {moods.length >= 3 && (
+                          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                            <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                              <span className="mr-2">📈</span>
+                              Recent Insights
+                            </h3>
+                            <div className="grid grid-cols-1 gap-2 text-xs text-gray-600">
+                              <div>
+                                <span className="font-medium">Most recent:</span> {moods[0]?.mood}
+                              </div>
+                              <div>
+                                <span className="font-medium">This week:</span> {moods.filter(mood => 
+                                  new Date(mood.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                                ).length} entries
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile/Tablet Layout: Vertical Stack */}
+            <div className="lg:hidden space-y-6">
+              {/* Mood Form Section */}
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <span className="text-blue-600 text-lg sm:text-xl">📝</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">Record Your Mood</h2>
+                    <p className="text-gray-600 text-sm">Share how you&apos;re feeling right now</p>
+                  </div>
+                </div>
+                <MoodForm onMoodSaved={refreshMoods} />
+              </div>
+
+              {/* Mood History Section */}
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 max-h-[60vh] flex flex-col">
+                <div className="flex items-center justify-between mb-4 sm:mb-6 flex-shrink-0">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <span className="text-green-600 text-lg sm:text-xl">📊</span>
+                    </div>
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-bold text-gray-800">Your Mood Journey</h2>
+                      <p className="text-gray-600 text-sm hidden sm:block">Track your emotional patterns over time</p>
+                    </div>
+                  </div>
+                  {moods.length > 0 && (
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">Total</p>
+                      <p className="text-lg sm:text-xl font-bold text-blue-600">{moods.length}</p>
                     </div>
                   )}
                 </div>
-              )}
+                
+                <div className="flex-1 overflow-y-auto">
+                  {moodLoading ? (
+                    <div className="text-center py-8 sm:py-12">
+                      <div className="relative inline-block">
+                        <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+                      </div>
+                      <p className="text-gray-600 text-sm sm:text-lg">Loading your mood history<span className="loading-dots"></span></p>
+                    </div>
+                  ) : moods.length === 0 ? (
+                    <div className="text-center py-8 sm:py-16 space-y-4">
+                      <div className="text-4xl sm:text-5xl mb-4">🌱</div>
+                      <div className="space-y-2">
+                        <p className="text-base sm:text-lg font-semibold text-gray-700">Your mood journey starts here!</p>
+                        <p className="text-gray-500 max-w-md mx-auto text-sm">
+                          No moods recorded yet. Start by sharing how you&apos;re feeling above to begin tracking your emotional well-being.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm"
+                      >
+                        <span className="mr-2">📝</span>
+                        Record your first mood
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {moods.map((moodEntry, index) => (
+                        <div 
+                          key={moodEntry._id} 
+                          className="card-hover border border-gray-200 rounded-xl p-3 sm:p-4 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
+                          style={{ animationDelay: `${index * 0.05}s` }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
+                                <div className="text-xl sm:text-2xl">{getMoodEmoji(moodEntry.mood)}</div>
+                                <div>
+                                  <p className="text-sm sm:text-lg font-bold text-gray-800">{moodEntry.mood}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {getTimeAgo(moodEntry.date)}
+                                  </p>
+                                </div>
+                              </div>
+                              {moodEntry.note && (
+                                <div className="bg-blue-50 border-l-4 border-blue-200 p-2 sm:p-3 rounded-r-lg">
+                                  <p className="text-gray-700 italic text-xs sm:text-sm">&ldquo;{moodEntry.note}&rdquo;</p>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-right text-xs text-gray-400 ml-3 sm:ml-4 flex-shrink-0">
+                              <div className="font-medium">
+                                {new Date(moodEntry.date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric'
+                                })}
+                              </div>
+                              <div>
+                                {new Date(moodEntry.date).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Mood Summary Stats */}
+                      {moods.length >= 3 && (
+                        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                          <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                            <span className="mr-2">📈</span>
+                            Recent Insights
+                          </h3>
+                          <div className="grid grid-cols-1 gap-2 text-xs text-gray-600">
+                            <div>
+                              <span className="font-medium">Most recent:</span> {moods[0]?.mood}
+                            </div>
+                            <div>
+                              <span className="font-medium">This week:</span> {moods.filter(mood => 
+                                new Date(mood.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                              ).length} entries
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         ) : (

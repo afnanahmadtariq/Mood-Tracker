@@ -250,6 +250,23 @@ body {
   .mobile-text-sm {
     font-size: 0.875rem;
   }
+  
+  /* Ensure cards don't get too cramped */
+  .card-hover {
+    padding: 0.75rem;
+  }
+  
+  /* Reduce spacing on small screens */
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+}
+
+/* Enhanced tablet responsiveness */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .tablet-optimized {
+    padding: 1.5rem;
+  }
 }
 
 /* Accessible focus indicators */
@@ -266,5 +283,71 @@ body {
   
   .mood-option:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Layout optimization utilities */
+.layout-container {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .layout-container {
+    grid-template-columns: 2fr 3fr;
+    height: calc(100vh - 280px);
+  }
+}
+
+/* Scrollable content areas */
+.scrollable-content {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.scrollable-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 2px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+/* Responsive text sizing */
+.responsive-text {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.responsive-heading {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+/* Grid auto-fit for mood options */
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .mood-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .mood-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }

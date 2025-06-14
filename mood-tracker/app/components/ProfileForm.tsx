@@ -49,11 +49,10 @@ export default function ProfileForm() {
     setIsSubmitting(false)
   }
   if (!user) return null
-
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8">
       {/* Profile Header */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-8">
           <div className="flex items-center space-x-4">
             {user.profilePicture ? (

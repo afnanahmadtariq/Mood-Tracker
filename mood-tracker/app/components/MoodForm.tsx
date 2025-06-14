@@ -56,48 +56,47 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
   }
 
   const selectedMoodOption = moodOptions.find(option => option.value === mood)
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-2 animate-slide-in">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg flex items-center space-x-2 animate-slide-in">
           <span className="text-red-500">⚠️</span>
-          <span>{error}</span>
+          <span className="text-sm sm:text-base">{error}</span>
         </div>
       )}
       
       {/* Success Message */}
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center space-x-2 animate-bounce-gentle">
+        <div className="bg-green-50 border border-green-200 text-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg flex items-center space-x-2 animate-bounce-gentle">
           <span className="text-green-500">✅</span>
-          <span>Mood saved successfully! 🎉</span>
+          <span className="text-sm sm:text-base">Mood saved successfully! 🎉</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <div>
-          <label className="block text-lg font-semibold text-gray-800 mb-4">
+          <label className="block text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">
             How are you feeling today?
           </label>
           
-          {/* Mood Selection Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          {/* Mood Selection Grid - Responsive */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
             {moodOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => setMood(option.value)}
-                className={`mood-option p-4 rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                className={`mood-option p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                   mood === option.value
                     ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-30 selected'
                     : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-3xl mb-2">{option.emoji}</div>
-                  <div className="font-medium text-gray-800 text-sm">{option.value}</div>
-                  <div className="text-xs text-gray-500 mt-1">{option.desc}</div>
+                  <div className="text-xl sm:text-2xl lg:text-3xl mb-1 sm:mb-2">{option.emoji}</div>
+                  <div className="font-medium text-gray-800 text-xs sm:text-sm">{option.value}</div>
+                  <div className="text-xs text-gray-500 mt-1 hidden sm:block lg:hidden xl:block">{option.desc}</div>
                 </div>
               </button>
             ))}
@@ -105,9 +104,9 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
 
           {/* Selected mood indicator */}
           {selectedMoodOption && (
-            <div className="flex items-center justify-center p-3 bg-blue-50 rounded-lg animate-fade-in">
-              <span className="text-2xl mr-2">{selectedMoodOption.emoji}</span>
-              <span className="text-blue-800 font-medium">
+            <div className="flex items-center justify-center p-2 sm:p-3 bg-blue-50 rounded-lg animate-fade-in">
+              <span className="text-xl sm:text-2xl mr-2">{selectedMoodOption.emoji}</span>
+              <span className="text-blue-800 font-medium text-sm sm:text-base">
                 You&apos;re feeling {selectedMoodOption.value.toLowerCase()}
               </span>
             </div>
@@ -115,7 +114,7 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
         </div>
         
         <div>
-          <label htmlFor="note" className="block text-sm font-semibold text-gray-700 mb-3">
+          <label htmlFor="note" className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
             Tell us more about it <span className="text-gray-400 font-normal">(optional)</span>
           </label>
           <textarea
@@ -123,8 +122,9 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
             placeholder="What's on your mind? Share your thoughts, what happened today, or how you're feeling..."
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            rows={4}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-200 placeholder-gray-400"
+            rows={3}
+            maxLength={500}
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-200 placeholder-gray-400 text-sm sm:text-base"
           />
           <div className="text-xs text-gray-500 mt-1">
             {note.length}/500 characters
@@ -134,7 +134,7 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
         <button 
           type="submit" 
           disabled={isSubmitting || !mood}
-          className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 transform ${
+          className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 transform text-sm sm:text-base ${
             isSubmitting || !mood
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 hover:transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
@@ -142,19 +142,23 @@ export default function MoodForm({ onMoodSaved }: MoodFormProps) {
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Saving your mood...
+              <span className="hidden sm:inline">Saving your mood...</span>
+              <span className="sm:hidden">Saving...</span>
             </span>
           ) : (
-            `💾 Save ${mood ? `"${mood}"` : 'Mood'} Entry`
+            <>
+              <span className="hidden sm:inline">💾 Save {mood ? `"${mood}"` : 'Mood'} Entry</span>
+              <span className="sm:hidden">💾 Save {mood ? mood : 'Mood'}</span>
+            </>
           )}
         </button>
 
         {!mood && (
-          <p className="text-center text-sm text-gray-500 animate-fade-in">
+          <p className="text-center text-xs sm:text-sm text-gray-500 animate-fade-in">
             👆 Please select how you&apos;re feeling to continue
           </p>
         )}
