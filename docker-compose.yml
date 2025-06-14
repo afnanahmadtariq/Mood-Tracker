@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MONGODB_URI: mongodb://mongo_db-testcase:27017/moodtrackerdb
+        JWT_SECRET: 3f66f61e8210bfd24cb74353c2228408e5d3d996a0de3f6e02604675608dbc9
+    container_name: moodtracker
+    ports:
+      - '3200:3000'
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo_db-testcase:27017/moodtrackerdb
+      - JWT_SECRET=3f66f61e8210bfd24cb74353c2228408e5d3d996a0de3f6e02604675608dbc9
+
+  mongo:
+    image: mongo:8
+    container_name: mongo_db-testcase
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

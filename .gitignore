@@ -1,0 +1,27 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+mood-tracker/node_modules
+
+# next.js
+mood-tracker/.next/
+mood-tracker/out/
+
+# production
+mood-tracker/build
+
+# debug
+mood-tracker/npm-debug.log*
+mood-tracker/yarn-debug.log*
+mood-tracker/yarn-error.log*
+mood-tracker/.pnpm-debug.log*
+
+# env files
+mood-tracker/.env*
+
+# vercel
+mood-tracker/.vercel
+
+# typescript
+mood-tracker/*.tsbuildinfo
+mood-tracker/next-env.d.ts
