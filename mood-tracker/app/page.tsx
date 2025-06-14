@@ -80,12 +80,12 @@ export default function Home() {
     return <AuthWrapper />
   }  // Main authenticated app
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className="h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex flex-col">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      <main className="max-w-7xl mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6 lg:space-y-8">
+      <main className="flex-1 overflow-hidden">
         {activeTab === 'mood' ? (
-          <div className="space-y-6">
+          <div className="max-w-7xl mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6 lg:space-y-8 h-full overflow-y-auto">
             {/* Header Section */}
             <div className="text-center space-y-2 sm:space-y-3">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
@@ -351,9 +351,8 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto">
+          </div>        ) : (
+          <div className="h-full">
             <ProfileForm />
           </div>
         )}
