@@ -18,13 +18,13 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ARG MONGODB_URI
-ARG JWT_SECRET
+ARG JWT_SECRET_FALLBACK
 
 ENV MONGODB_URI=$MONGODB_URI
 ENV JWT_SECRET_FALLBACK=$JWT_SECRET_FALLBACK
 
 # Build the Next.js app
-RUN npm run build || { echo "Build failed"; exit 1; }
+RUN npm run build
 
 # Expose the app port
 EXPOSE 3000
