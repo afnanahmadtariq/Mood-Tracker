@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         MONGODB_URI: mongodb://mongo_db-testcase:27017/moodtrackerdb
-        JWT_SECRET: 3f66f61e8210bfd24cb74353c2228408e5d3d996a0de3f6e02604675608dbc9
+        JWT_SECRET: credentials('JWT_SECRET')
     container_name: moodtracker
     ports:
       - '3200:3000'
@@ -15,7 +15,7 @@ services:
       - mongo
     environment:
       - MONGODB_URI=mongodb://mongo_db-testcase:27017/moodtrackerdb
-      - JWT_SECRET=3f66f61e8210bfd24cb74353c2228408e5d3d996a0de3f6e02604675608dbc9
+      - JWT_SECRET=credentials('JWT_SECRET')
 
   mongo:
     image: mongo:8

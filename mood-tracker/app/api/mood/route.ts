@@ -1,16 +1,26 @@
 import dbConnect from '@/app/lib/mongodb'
 import Mood from '@/app/models/Mood'
+import { getUserFromRequest } from '@/app/lib/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
     await dbConnect()
     
+    const userAuth = getUserFromRequest(request)
+    if (!userAuth) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      )
+    }
+    
     const { mood, note } = await request.json()
     const newMood = await Mood.create({ 
       mood, 
       note,
-      date: new Date()
+      date: new Date(),
+      userId: userAuth.userId
     })
     
     return NextResponse.json(newMood, { status: 201 })
@@ -28,11 +38,19 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await dbConnect()
     
-    const moods = await Mood.find({}).sort({ date: -1 }).limit(50)
+    const userAuth = getUserFromRequest(request)
+    if (!userAuth) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      )
+    }
+    
+    const moods = await Mood.find({ userId: userAuth.userId }).sort({ date: -1 }).limit(50)
     
     return NextResponse.json(moods)
   } catch (error) {
