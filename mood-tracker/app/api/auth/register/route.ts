@@ -3,6 +3,14 @@ import User from '@/app/models/User'
 import { generateToken } from '@/app/lib/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
+interface UserRegistrationData {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  dateOfBirth?: Date
+}
+
 export async function POST(request: NextRequest) {
   try {
     await dbConnect()
@@ -31,10 +39,8 @@ export async function POST(request: NextRequest) {
         { error: 'User with this email already exists' }, 
         { status: 400 }
       )
-    }
-
-    // Create user
-    const userData: any = {
+    }    // Create user
+    const userData: UserRegistrationData = {
       email,
       password,
       firstName,
