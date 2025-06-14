@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         MONGODB_URI: mongodb://mongo_db-testcase:27017/moodtrackerdb
-        JWT_SECRET_FALLBACK: credentials('JWT_SECRET')
+        JWT_SECRET_FALLBACK: ${JWT_SECRET_FALLBACK}
     container_name: moodtracker
     ports:
       - '3200:3000'
@@ -15,8 +15,8 @@ services:
       - mongo
     environment:
       - MONGODB_URI=mongodb://mongo_db-testcase:27017/moodtrackerdb
-      - JWT_SECRET_FALLBACK=credentials('JWT_SECRET')
-
+      - JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}
+      
   mongo:
     image: mongo:8
     container_name: mongo_db-testcase
