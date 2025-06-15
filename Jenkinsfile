@@ -25,7 +25,8 @@ pipeline {
             sh 'docker-compose -p $PROJECT_NAME -f docker-compose.yml up -d --build'
         }
       }
-    }    stage('Test') {
+    }    
+    stage('Test') {
       steps {
         script {
             sh 'cd testcases && docker-compose down -v --remove-orphans || true'
