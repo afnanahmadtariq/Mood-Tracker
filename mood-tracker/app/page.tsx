@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from './context/AuthContext'
+import { useIsClient } from './hooks/useIsClient'
+import { isRecentDate, isSameDay } from './lib/dateUtils'
 import AuthWrapper from './components/AuthWrapper'
 import Header from './components/Header'
 import MoodForm from './components/MoodForm'
 import ProfileForm from './components/ProfileForm'
+import ClientDate from './components/ClientDate'
 import Analytics from './analytics/page'
 
 interface MoodEntry {
@@ -41,6 +44,7 @@ function HomeContent() {
   const [moodLoading, setMoodLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'mood' | 'profile' | 'analytics'>('mood')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const isClient = useIsClient()
 
   const fetchMoods = useCallback(async () => {
     if (!user) return
@@ -119,11 +123,9 @@ function HomeContent() {
     )
     
     return mostCommon[0]
-  }
-
-  // Helper function to get consecutive days streak
+  }  // Helper function to get consecutive days streak
   const getConsecutiveDays = () => {
-    if (moods.length === 0) return 0
+    if (moods.length === 0 || !isClient) return 0
     
     let streak = 0
     const today = new Date()
@@ -131,8 +133,7 @@ function HomeContent() {
     
     for (let i = 0; i < 30; i++) {
       const dayMoods = moods.filter(mood => {
-        const moodDate = new Date(mood.date)
-        return moodDate.toDateString() === currentDate.toDateString()
+        return isSameDay(mood.date, currentDate)
       })
       
       if (dayMoods.length > 0) {
@@ -145,9 +146,8 @@ function HomeContent() {
     }
     
     return streak
-  }
-  // Show loading screen
-  if (loading) {
+  }// Show loading screen
+  if (loading || !isClient) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -259,20 +259,29 @@ function HomeContent() {
                                     <p className="text-gray-700 italic text-sm">&ldquo;{moodEntry.note}&rdquo;</p>
                                   </div>
                                 )}
-                              </div>
-                              <div className="flex items-start space-x-2">
+                              </div>                              <div className="flex items-start space-x-2">
                                 <div className="text-right text-xs text-gray-400 flex-shrink-0">
                                   <div className="font-medium">
-                                    {new Date(moodEntry.date).toLocaleDateString('en-US', {
-                                      month: 'short',
-                                      day: 'numeric'
-                                    })}
+                                    <ClientDate 
+                                      date={moodEntry.date} 
+                                      format="date"
+                                      options={{
+                                        month: 'short',
+                                        day: 'numeric'
+                                      }}
+                                      fallback="Loading..."
+                                    />
                                   </div>
                                   <div>
-                                    {new Date(moodEntry.date).toLocaleTimeString('en-US', {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })}
+                                    <ClientDate 
+                                      date={moodEntry.date} 
+                                      format="time"
+                                      options={{
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      }}
+                                      fallback="--:--"
+                                    />
                                   </div>
                                 </div>                                <button
                                   onClick={() => deleteMood(moodEntry._id)}
@@ -333,7 +342,7 @@ function HomeContent() {
                                 <div>
                                   <span className="font-medium text-gray-700">This week:</span>
                                   <p className="text-gray-600">{moods.filter(mood => 
-                                    new Date(mood.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                                    isRecentDate(mood.date, 7)
                                   ).length} entries</p>
                                 </div>
                               </div>
@@ -457,20 +466,29 @@ function HomeContent() {
                                   <p className="text-gray-700 italic text-xs sm:text-sm">&ldquo;{moodEntry.note}&rdquo;</p>
                                 </div>
                               )}
-                            </div>
-                            <div className="flex items-start space-x-1 sm:space-x-2">
+                            </div>                            <div className="flex items-start space-x-1 sm:space-x-2">
                               <div className="text-right text-xs text-gray-400 flex-shrink-0">
                                 <div className="font-medium">
-                                  {new Date(moodEntry.date).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
+                                  <ClientDate 
+                                    date={moodEntry.date} 
+                                    format="date"
+                                    options={{
+                                      month: 'short',
+                                      day: 'numeric'
+                                    }}
+                                    fallback="Loading..."
+                                  />
                                 </div>
                                 <div>
-                                  {new Date(moodEntry.date).toLocaleTimeString('en-US', {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
+                                  <ClientDate 
+                                    date={moodEntry.date} 
+                                    format="time"
+                                    options={{
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    }}
+                                    fallback="--:--"
+                                  />
                                 </div>
                               </div>                              <button
                                 onClick={() => deleteMood(moodEntry._id)}

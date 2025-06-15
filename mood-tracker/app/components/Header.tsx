@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useIsClient } from '../hooks/useIsClient'
 
 interface HeaderProps {
   activeTab: 'mood' | 'profile' | 'analytics'
@@ -11,11 +12,29 @@ interface HeaderProps {
 export default function Header({ activeTab, setActiveTab }: HeaderProps) {
   const { user, logout } = useAuth()
   const [showDropdown, setShowDropdown] = useState(false)
+  const isClient = useIsClient()
 
   const handleLogout = async () => {
     await logout()
     setShowDropdown(false)
   }
+
+  // Close dropdown when clicking outside (only on client)
+  useEffect(() => {
+    if (!isClient) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest('[data-dropdown]')) {
+        setShowDropdown(false)
+      }
+    }
+
+    if (showDropdown) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showDropdown, isClient])
 
   return (
     <header className="shadow-lg border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
@@ -73,14 +92,12 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                 <span>Profile</span>
               </span>
             </button>
-          </nav>
-
-          {/* User Menu */}
-          <div className="relative">
+          </nav>          {/* User Menu */}
+          <div className="relative" data-dropdown>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center space-x-2 sm:space-x-3 text-sm rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 p-1.5 sm:p-2 hover:bg-gray-50 transition-all duration-200"
-            >              
+            >
             {user?.profilePicture ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img

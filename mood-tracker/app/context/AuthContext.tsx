@@ -52,9 +52,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   // Check if user is authenticated on app start
   useEffect(() => {
+    setMounted(true)
     checkAuth()
   }, [])
 
@@ -162,7 +164,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false
     }
   }
-
   const value = {
     user,
     login,
@@ -171,6 +172,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     updateProfile,
     loading,
     error,
+  }
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return <AuthContext.Provider value={value}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xl font-semibold text-gray-700">Loading your mood tracker</p>
+            <p className="text-gray-500">Just a moment<span className="loading-dots"></span></p>
+          </div>
+        </div>
+      </div>
+    </AuthContext.Provider>
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

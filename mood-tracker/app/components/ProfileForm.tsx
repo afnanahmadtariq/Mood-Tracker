@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import ClientDate from './ClientDate'
 
 export default function ProfileForm() {
   const { user, updateProfile, logout, error } = useAuth()
@@ -82,12 +83,18 @@ export default function ProfileForm() {
                   <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-800">
                     {user.firstName} {user.lastName}
                   </h1>
-                  <p className="text-gray-600 text-xs sm:text-sm">{user.email}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short'
-                    }) : 'N/A'}
+                  <p className="text-gray-600 text-xs sm:text-sm">{user.email}</p>                  <p className="text-xs text-gray-500 mt-1">
+                    Member since {user.createdAt ? (
+                      <ClientDate 
+                        date={user.createdAt} 
+                        format="date"
+                        options={{
+                          year: 'numeric',
+                          month: 'short'
+                        }}
+                        fallback="N/A"
+                      />
+                    ) : 'N/A'}
                   </p>
                 </div>
               </div>
