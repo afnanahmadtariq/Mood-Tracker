@@ -3,7 +3,8 @@ FROM node:24-alpine
 # Install Chrome and dependencies
 RUN apk add --no-cache \
     chromium \
-    chromium-chromedriver
+    chromium-chromedriver \
+    dos2unix
 
 # Set Chrome binary path
 ENV CHROME_BIN=/usr/bin/chromium-browser
@@ -16,7 +17,8 @@ RUN npm install
 
 COPY . .
 
-COPY run-tests.sh ./run-tests.sh
+# Ensure proper line endings and permissions for shell script
+RUN dos2unix run-tests.sh 2>/dev/null || true
 RUN chmod +x run-tests.sh
 
 CMD ["./run-tests.sh"]
