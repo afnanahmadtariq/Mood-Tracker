@@ -195,7 +195,7 @@ function HomeContent() {
                   <div className="flex items-center justify-between mb-6 flex-shrink-0">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                        <span className="text-green-600 text-xl">�</span>
+                        <span className="text-green-600 text-xl">📈</span>
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-gray-800">Your Mood Journey</h2>
@@ -395,7 +395,7 @@ function HomeContent() {
                 <div className="flex items-center justify-between mb-4 sm:mb-6 flex-shrink-0">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                      <span className="text-green-600 text-lg sm:text-xl">�</span>
+                      <span className="text-green-600 text-lg sm:text-xl">📈</span>
                     </div>
                     <div>
                       <h2 className="text-lg sm:text-xl font-bold text-gray-800">Your Mood Journey</h2>

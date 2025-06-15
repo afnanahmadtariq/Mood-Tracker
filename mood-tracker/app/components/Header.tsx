@@ -52,8 +52,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
               <p className="text-xs text-gray-500 -mt-1 hidden sm:block">Your emotional wellness companion</p>
             </div>
           </div>          {/* Navigation */}
-          <nav className="hidden md:flex space-x-1 lg:space-x-2">
-            <button
+          <nav className="hidden md:flex space-x-1 lg:space-x-2">            <button
               onClick={() => setActiveTab('mood')}
               className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 activeTab === 'mood'
@@ -62,7 +61,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
               }`}
             >
               <span className="flex items-center space-x-1 lg:space-x-2">
-                <span>�</span>
+                <span>😊</span>
                 <span>My Moods</span>
               </span>
             </button>
@@ -167,7 +166,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 flex items-center space-x-3"
                 >
-                  <span>🚪</span>
+                  <span>�</span>
                   <span>Sign out</span>
                 </button>
               </div>
@@ -176,7 +175,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         </div>        {/* Mobile Navigation */}
         <div className="md:hidden border-t border-gray-100">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <button
+           <button
               onClick={() => setActiveTab('mood')}
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-left transition-all duration-200 ${
                 activeTab === 'mood'
@@ -184,7 +183,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                   : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
-              <span>�</span>
+              <span>😊</span>
               <span>My Moods</span>
             </button>
             <button
