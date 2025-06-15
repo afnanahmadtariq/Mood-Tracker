@@ -12,8 +12,18 @@ pipeline {
           git branch: 'main', url: 'https://github.com/afnanahmadtariq/Mood-Tracker.git'
         }
       }
+    }    
+    stage('Test') {
+      steps {
+        script {
+            sh 'export JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}'
+            sh 'cd testcases && docker-compose down -v --remove-orphans || true'
+            sh 'cd testcases && docker-compose up --build --abort-on-container-exit | tee test-results.log'
+            sh 'cd testcases && docker-compose down -v'
+        }
+      }
     }
-      stage('Build and Deploy') {
+    stage('Build and Deploy') {
       steps {
         script {
             sh 'export JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}'
@@ -23,18 +33,9 @@ pipeline {
             sh 'docker-compose -p $PROJECT_NAME -f docker-compose.yml up -d --build'
         }
       }
-    }    
-    stage('Test') {
-      steps {
-        script {
-            sh 'cd testcases && docker-compose down -v --remove-orphans || true'
-            sh 'cd testcases && docker-compose up --build --abort-on-container-exit | tee test-results.log'
-            sh 'cd testcases && docker-compose down -v'
-        }
-      }
     }
-
   }
+
   post {
     always {
       script {
@@ -57,7 +58,9 @@ pipeline {
             
             Jenkins Build: ${BUILD_URL}
           """,
-          to: "${committerEmail}"
+          to: "${committerEmail}",
+          replyTo: "shipatarGang@yourdomain.com",
+          from: "shipatarGang@yourdomain.com"
         )
       }
     }

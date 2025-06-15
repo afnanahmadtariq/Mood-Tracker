@@ -18,4 +18,4 @@ COPY . .
 
 RUN chmod +x run-tests.sh
 
-CMD ["./run-tests.sh"]
+CMD ["/app/run-tests.sh"]
