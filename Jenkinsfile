@@ -1,10 +1,8 @@
 pipeline {
   agent any
-
   environment {
     PROJECT_NAME = 'MoodTracker'
     JWT_SECRET_FALLBACK = credentials('JWT_SECRET')
-    COMMITTER_EMAIL = sh(script: "cd Test-Cases && git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
   }
 
   stages {
@@ -42,6 +40,7 @@ pipeline {
       script {
         def testResults = readFile('testcases/test-results.log')
         def buildStatus = currentBuild.currentResult
+        def committerEmail = sh(script: "cd Test-Cases && git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
         
         emailext (
           subject: "Mood Tracker Test Results - ${buildStatus}",
@@ -51,14 +50,14 @@ pipeline {
             Build Status: ${buildStatus}
             Build Number: ${BUILD_NUMBER}
             Branch: ${GIT_BRANCH}
-            Committer: ${COMMITTER_EMAIL}
+            Committer: ${committerEmail}
             
             Test Output:
             ${testResults}
             
             Jenkins Build: ${BUILD_URL}
           """,
-          to: "${COMMITTER_EMAIL}"
+          to: "${committerEmail}"
         )
       }
     }
