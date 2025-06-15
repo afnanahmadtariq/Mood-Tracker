@@ -14,14 +14,13 @@ async function test10() {
     .setChromeOptions(options)
     .build();
   
-  try {
-    // Navigate to homepage and login first
+  try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get(' http://localhost:3000');
+    await driver.get('http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
     
-    // Check if already logged in, if not, perform login
-    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));
+    // Check if already logged in by looking for authenticated content
+    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
     
     if (isLoggedIn.length === 0) {
       console.log('🔐 Not logged in, performing login...');
@@ -29,45 +28,64 @@ async function test10() {
       // Look for login form or toggle to it
       try {
         await driver.wait(until.elementLocated(By.id('email')), 2000);
-      } catch (e) {        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
+        console.log('   Login form found directly');
+      } catch (e) {
+        console.log('   Login form not visible, looking for login link...');
+        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
         await driver.executeScript("arguments[0].click();", loginLink);
         await driver.wait(until.elementLocated(By.id('email')), 5000);
+        console.log('   Login form found after clicking login link');
       }
       
       // Login with test credentials
+      console.log('   Filling login credentials...');
       await driver.findElement(By.id('email')).sendKeys('test@example.com');
-      await driver.findElement(By.id('password')).sendKeys('password123');      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
+      await driver.findElement(By.id('password')).sendKeys('password123');
+      
+      console.log('   Submitting login form...');
+      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
       await driver.executeScript("arguments[0].click();", submitButton);
       
-      // Wait for login to complete
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile')]")), 10000);
-    }
-      // Navigate to Profile page
+      // Wait for login to complete - look for authenticated elements
+      console.log('⏳ Waiting for login to complete...');
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Profile') or contains(text(), 'Analytics')]")), 10000);
+      console.log('✓ Login completed');
+    } else {
+      console.log('✓ Already logged in');
+    }    // Navigate to Profile page
     console.log('👤 Navigating to Profile page...');
     const profileButton = await driver.findElement(By.xpath(
       "//button[contains(., 'Profile')] | " +
       "//button[.//span[contains(text(), 'Profile')]] | " +
-      "//button[contains(text(), '👤')]"    ));
+      "//button[contains(text(), '👤')]"
+    ));
     await driver.executeScript("arguments[0].click();", profileButton);
     
     // Wait for profile page to load
     await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Settings')] | //input[@name='firstName'] | //input[@name='lastName']")), 10000);
+    console.log('✓ Profile page loaded');
     
-    // Find first name and last name input fields
+    // Find first name and last name input fields using IDs
     console.log('👋 Looking for name fields...');
-    const firstNameInput = await driver.findElement(By.xpath(
-      "//input[@name='firstName'] | " +
-      "//input[@id='firstName'] | " +
-      "//input[contains(@placeholder, 'first') or contains(@placeholder, 'First')]"
-    ));
     
-    const lastNameInput = await driver.findElement(By.xpath(
-      "//input[@name='lastName'] | " +
-      "//input[@id='lastName'] | " +
-      "//input[contains(@placeholder, 'last') or contains(@placeholder, 'Last')]"
-    ));
+    // Wait for and locate first name input
+    await driver.wait(until.elementLocated(By.id('firstName')), 10000);
+    const firstNameInput = await driver.findElement(By.id('firstName'));
     
-    // Get current name values
+    // Wait for and locate last name input
+    await driver.wait(until.elementLocated(By.id('lastName')), 10000);
+    const lastNameInput = await driver.findElement(By.id('lastName'));
+    
+    // Scroll to ensure fields are visible
+    await driver.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", firstNameInput);
+    await driver.sleep(1000);
+    
+    // Wait for fields to be interactable
+    await driver.wait(until.elementIsEnabled(firstNameInput), 5000);
+    await driver.wait(until.elementIsEnabled(lastNameInput), 5000);
+    
+    console.log('✓ Name fields found and ready for interaction');
+      // Get current name values
     const currentFirstName = await firstNameInput.getAttribute('value');
     const currentLastName = await lastNameInput.getAttribute('value');
     console.log(`📊 Current name: "${currentFirstName} ${currentLastName}"`);
@@ -77,16 +95,62 @@ async function test10() {
     const newLastName = 'UpdatedUser';
     console.log('📝 Changing profile name...');
     
-    await firstNameInput.clear();
-    await firstNameInput.sendKeys(newFirstName);
+    // Update first name field
+    try {
+      // Method 1: Standard clear and sendKeys
+      await firstNameInput.clear();
+      await firstNameInput.sendKeys(newFirstName);
+    } catch (e) {
+      console.log('   Standard method failed for firstName, trying JavaScript approach...');
+      // Method 2: Use JavaScript to set value
+      await driver.executeScript("arguments[0].value = '';", firstNameInput);
+      await driver.executeScript("arguments[0].value = arguments[1];", firstNameInput, newFirstName);
+      
+      // Trigger React events
+      await driver.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", firstNameInput);
+      await driver.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", firstNameInput);
+    }
     
-    await lastNameInput.clear();
-    await lastNameInput.sendKeys(newLastName);
+    // Update last name field
+    try {
+      // Method 1: Standard clear and sendKeys
+      await lastNameInput.clear();
+      await lastNameInput.sendKeys(newLastName);
+    } catch (e) {
+      console.log('   Standard method failed for lastName, trying JavaScript approach...');
+      // Method 2: Use JavaScript to set value
+      await driver.executeScript("arguments[0].value = '';", lastNameInput);
+      await driver.executeScript("arguments[0].value = arguments[1];", lastNameInput, newLastName);
+      
+      // Trigger React events
+      await driver.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", lastNameInput);
+      await driver.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", lastNameInput);
+    }
     
-    // Submit the profile form
+    console.log('✓ Name values entered successfully');
+      // Submit the profile form
     console.log('🚀 Saving profile changes...');
-    const saveButton = await driver.findElement(By.xpath("//button[contains(text(), 'Save') or contains(text(), 'Update') or @type='submit']"));
-    await driver.executeScript("arguments[0].click();", saveButton);
+    
+    // Find and click the save button
+    try {
+      const saveButton = await driver.findElement(By.xpath("//button[contains(text(), 'Save') or contains(text(), 'Update') or @type='submit']"));
+      
+      // Scroll to save button and ensure it's visible
+      await driver.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", saveButton);
+      await driver.sleep(500);
+      
+      // Wait for button to be clickable
+      await driver.wait(until.elementIsEnabled(saveButton), 5000);
+      
+      // Click the save button
+      await driver.executeScript("arguments[0].click();", saveButton);
+      console.log('✓ Save button clicked successfully');
+    } catch (e) {
+      console.log('   Save button not found with primary selector, trying form submission...');
+      // Alternative: try submitting the form directly
+      const form = await driver.findElement(By.xpath("//form"));
+      await driver.executeScript("arguments[0].submit();", form);
+    }
     
     // Wait for save confirmation
     console.log('⏳ Waiting for profile update...');
