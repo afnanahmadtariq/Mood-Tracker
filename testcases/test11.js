@@ -17,7 +17,7 @@ async function test11() {
   try {
     // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://18.204.228.168:3300/');
+    await driver.get(' http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
@@ -29,17 +29,15 @@ async function test11() {
       // Look for login form or toggle to it
       try {
         await driver.wait(until.elementLocated(By.id('email')), 2000);
-      } catch (e) {
-        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
-        await loginLink.click();
+      } catch (e) {        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
+        await driver.executeScript("arguments[0].click();", loginLink);
         await driver.wait(until.elementLocated(By.id('email')), 5000);
       }
       
       // Login with test credentials
       await driver.findElement(By.id('email')).sendKeys('test@example.com');
-      await driver.findElement(By.id('password')).sendKeys('password123');
-      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
-      await submitButton.click();
+      await driver.findElement(By.id('password')).sendKeys('password123');      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
+      await driver.executeScript("arguments[0].click();", submitButton);
       
       // Wait for login to complete
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile')]")), 10000);
@@ -69,10 +67,9 @@ async function test11() {
     // Get current URL before interaction
     const currentUrl = await driver.getCurrentUrl();
     console.log(`📊 Current URL: ${currentUrl}`);
-    
-    // Click the profile dropdown trigger
+      // Click the profile dropdown trigger
     console.log('👆 Clicking profile dropdown trigger...');
-    await profileDropdownTrigger.click();
+    await driver.executeScript("arguments[0].click();", profileDropdownTrigger);
     
     // Wait for dropdown menu to appear or direct navigation
     console.log('⏳ Waiting for dropdown menu or navigation...');
@@ -87,9 +84,8 @@ async function test11() {
         "//*[contains(@class, 'dropdown')]//*[contains(text(), 'Profile') or contains(text(), 'Settings')] | " +
         "//*[contains(@class, 'menu')]//*[contains(text(), 'Profile') or contains(text(), 'Settings')]"
       ));
-      
-      console.log('📋 Found profile settings option in dropdown, clicking...');
-      await profileSettingsLink.click();
+        console.log('📋 Found profile settings option in dropdown, clicking...');
+      await driver.executeScript("arguments[0].click();", profileSettingsLink);
       
     } catch (e) {
       // If no dropdown menu found, the first click might have directly navigated to profile

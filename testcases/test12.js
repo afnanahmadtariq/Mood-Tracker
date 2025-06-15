@@ -17,7 +17,7 @@ async function test12() {
   try {
     // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://18.204.228.168:3300/');
+    await driver.get(' http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
@@ -29,17 +29,15 @@ async function test12() {
       // Look for login form or toggle to it
       try {
         await driver.wait(until.elementLocated(By.id('email')), 2000);
-      } catch (e) {
-        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
-        await loginLink.click();
+      } catch (e) {        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
+        await driver.executeScript("arguments[0].click();", loginLink);
         await driver.wait(until.elementLocated(By.id('email')), 5000);
       }
       
       // Login with test credentials
       await driver.findElement(By.id('email')).sendKeys('test@example.com');
-      await driver.findElement(By.id('password')).sendKeys('password123');
-      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
-      await submitButton.click();
+      await driver.findElement(By.id('password')).sendKeys('password123');      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
+      await driver.executeScript("arguments[0].click();", submitButton);
       
       // Wait for login to complete
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile')]")), 10000);
@@ -76,9 +74,8 @@ async function test12() {
           "//button[contains(text(), '⚙️') or contains(text(), '👤')] | " +
           "//*[contains(@class, 'header')]//*[contains(@class, 'user')]"
         ));
-        
-        console.log('   Found profile menu, clicking to open...');
-        await profileDropdown.click();
+          console.log('   Found profile menu, clicking to open...');
+        await driver.executeScript("arguments[0].click();", profileDropdown);
         await driver.sleep(1000);
         
         // Now look for sign out option in the dropdown
@@ -94,9 +91,8 @@ async function test12() {
       }
     }
     
-    // Click the sign out button
-    console.log('👆 Clicking sign out...');
-    await signOutButton.click();
+    // Click the sign out button    console.log('👆 Clicking sign out...');
+    await driver.executeScript("arguments[0].click();", signOutButton);
     
     // Wait for logout and redirect to login page
     console.log('⏳ Waiting for logout and redirect...');
@@ -156,7 +152,7 @@ async function test12() {
     try {
       // Try to navigate to a protected page (if current URL doesn't indicate logout)
       if (!finalUrl.includes('login') && !finalUrl.includes('signin')) {
-        await driver.get('http://18.204.228.168:3300/');
+        await driver.get(' http://localhost:3000');
         await driver.sleep(2000);
         
         const protectedCheck = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));

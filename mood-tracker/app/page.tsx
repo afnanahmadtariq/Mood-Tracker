@@ -10,6 +10,7 @@ import Header from './components/Header'
 import MoodForm from './components/MoodForm'
 import ProfileForm from './components/ProfileForm'
 import ClientDate from './components/ClientDate'
+import NoSSR from './components/NoSSR'
 import Analytics from './analytics/page'
 
 interface MoodEntry {
@@ -631,7 +632,7 @@ function getTimeAgo(date: string): string {
 // Main component with Suspense boundary for useSearchParams
 export default function Home() {
   return (
-    <Suspense fallback={
+    <NoSSR fallback={
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="relative">
@@ -644,7 +645,21 @@ export default function Home() {
         </div>
       </div>
     }>
-      <HomeContent />
-    </Suspense>
+      <Suspense fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xl font-semibold text-gray-700">Loading your mood tracker</p>
+              <p className="text-gray-500">Just a moment<span className="loading-dots"></span></p>
+            </div>
+          </div>
+        </div>
+      }>
+        <HomeContent />
+      </Suspense>
+    </NoSSR>
   )
 }

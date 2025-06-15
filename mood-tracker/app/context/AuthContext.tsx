@@ -61,6 +61,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const checkAuth = async () => {
+    if (typeof window === 'undefined') return
+    
     try {
       const response = await fetch('/api/profile')
       if (response.ok) {
@@ -73,8 +75,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false)
     }
   }
-
   const login = async (email: string, password: string): Promise<boolean> => {
+    if (typeof window === 'undefined') return false
+    
     try {
       setError(null)
       const response = await fetch('/api/auth/login', {
@@ -100,8 +103,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false
     }
   }
-
   const register = async (userData: RegisterData): Promise<boolean> => {
+    if (typeof window === 'undefined') return false
+    
     try {
       setError(null)
       const response = await fetch('/api/auth/register', {
@@ -127,8 +131,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false
     }
   }
-
   const logout = async (): Promise<void> => {
+    if (typeof window === 'undefined') return
+    
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
@@ -137,8 +142,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null) // Clear user even if logout request fails
     }
   }
-
   const updateProfile = async (profileData: ProfileData): Promise<boolean> => {
+    if (typeof window === 'undefined') return false
+    
     try {
       setError(null)
       const response = await fetch('/api/profile', {
@@ -164,6 +170,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false
     }
   }
+  
   const value = {
     user,
     login,
@@ -172,23 +179,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     updateProfile,
     loading,
     error,
-  }
-
-  // Prevent hydration mismatch by not rendering until mounted
+  }  // Prevent hydration mismatch by ensuring consistent rendering
   if (!mounted) {
-    return <AuthContext.Provider value={value}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-xl font-semibold text-gray-700">Loading your mood tracker</p>
-            <p className="text-gray-500">Just a moment<span className="loading-dots"></span></p>
-          </div>
-        </div>
-      </div>
-    </AuthContext.Provider>
+    return (
+      <AuthContext.Provider value={value}>
+        {children}
+      </AuthContext.Provider>
+    )
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

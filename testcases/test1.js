@@ -19,7 +19,7 @@ async function test1() {
   
   try {    // Navigate to homepage
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://18.204.228.168:3300/');
+    await driver.get(' http://localhost:3000');
     
     // Wait for page to load with more specific checks
     console.log('⏳ Waiting for page to load...');

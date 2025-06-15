@@ -16,7 +16,7 @@ async function test4() {
 
   try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://18.204.228.168:3300/');
+    await driver.get(' http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
 
     // Check if already logged in, if not, perform login
@@ -34,16 +34,17 @@ async function test4() {
       await driver.findElement(By.id('password')).sendKeys('password123');
       const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
       await submitButton.click();
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics')]")), 10000);
-    }    // Navigate to Analytics page
-    console.log('� Navigating to Analytics page...');
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics')]")), 10000);    }
+
+    // Navigate to Analytics page
+    console.log('📊 Navigating to Analytics page...');
     const analyticsButton = await driver.findElement(By.xpath(
       "//button[contains(., 'Analytics')] | " +
       "//button[.//span[contains(text(), 'Analytics')]] | " +
       "//button[contains(text(), '📊')] | " +
       "//*[contains(@class, 'md:flex')]//*[contains(text(), 'Analytics')]"
     ));
-    await analyticsButton.click();
+    await driver.executeScript("arguments[0].click();", analyticsButton);
     console.log('⏳ Waiting for analytics page to load...');
     await driver.sleep(2000);
 

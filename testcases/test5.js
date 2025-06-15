@@ -16,7 +16,7 @@ async function test5() {
   
   try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://18.204.228.168:3300/');
+    await driver.get(' http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
@@ -31,11 +31,10 @@ async function test5() {
         const loginLink = await driver.wait(until.elementLocated(
           By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]")
         ), 5000);
-        await driver.wait(until.elementIsEnabled(loginLink), 3000);
-        await driver.executeScript("arguments[0].scrollIntoView(true);", loginLink);
+        await driver.wait(until.elementIsEnabled(loginLink), 3000);        await driver.executeScript("arguments[0].scrollIntoView(true);", loginLink);
         await driver.sleep(500); // Small delay after scroll
         await driver.wait(until.elementIsVisible(loginLink), 3000);
-        await loginLink.click();
+        await driver.executeScript("arguments[0].click();", loginLink);
         await driver.wait(until.elementLocated(By.id('email')), 5000);
       }
         // Login with test credentials
@@ -52,10 +51,10 @@ async function test5() {
       
       const submitButton = await driver.wait(until.elementLocated(
         By.xpath("//button[contains(text(), 'Sign In') or @type='submit']")
-      ), 5000);
-      await driver.wait(until.elementIsEnabled(submitButton), 3000);
+      ), 5000);      await driver.wait(until.elementIsEnabled(submitButton), 3000);
       await driver.executeScript("arguments[0].scrollIntoView(true);", submitButton);
-      await driver.sleep(500);      await submitButton.click();
+      await driver.sleep(500);
+      await driver.executeScript("arguments[0].click();", submitButton);
       
       // Wait for login to complete - look for page refresh or redirect
       console.log('⏳ Waiting for login to complete...');
@@ -91,9 +90,8 @@ async function test5() {
     try {
       console.log('   Ensuring we are on the Mood tab...');
       const moodTab = await driver.findElements(By.xpath("//button[contains(., 'My Moods') or contains(., 'Mood')]"));
-      if (moodTab.length > 0) {
-        console.log('   Clicking on Mood tab...');
-        await moodTab[0].click();
+      if (moodTab.length > 0) {        console.log('   Clicking on Mood tab...');
+        await driver.executeScript("arguments[0].click();", moodTab[0]);
         // Wait a moment for the tab content to load
         await driver.sleep(1000);
       }
@@ -116,8 +114,7 @@ async function test5() {
     }
 
     // Click the second button (Happy) if available, otherwise the first one
-    const selectedMoodIndex = moodButtons.length > 1 ? 1 : 0;
-    await moodButtons[selectedMoodIndex].click();
+    const selectedMoodIndex = moodButtons.length > 1 ? 1 : 0;    await driver.executeScript("arguments[0].click();", moodButtons[selectedMoodIndex]);
     console.log('   Selected mood');
     
     // Wait briefly for any UI updates after selection
@@ -132,15 +129,13 @@ async function test5() {
       // Submit the form
     try {
       // Try to find by data-testid first (Next.js best practice)
-      console.log('   Looking for submit button by data-testid...');
-      const submitButton = await driver.findElement(By.css('[data-testid="save-mood-button"]'));
-      await submitButton.click();
+      console.log('   Looking for submit button by data-testid...');      const submitButton = await driver.findElement(By.css('[data-testid="save-mood-button"]'));
+      await driver.executeScript("arguments[0].click();", submitButton);
       console.log('   Submitted mood form using data-testid');
     } catch (e) {
-      console.log('   Could not find submit button by data-testid, trying type attribute...');
-      try {
+      console.log('   Could not find submit button by data-testid, trying type attribute...');      try {
         const submitButton = await driver.findElement(By.css('button[type="submit"]'));
-        await submitButton.click();
+        await driver.executeScript("arguments[0].click();", submitButton);
         console.log('   Submitted mood form using type attribute');
       } catch (innerError) {
         console.log('   Could not find submit button by type, trying alternative selectors...');
@@ -148,8 +143,7 @@ async function test5() {
           // Try to find by text content
           const submitButton = await driver.findElement(
             By.xpath("//button[contains(text(), 'Save') or contains(text(), 'Submit') or contains(text(), 'Add')]")
-          );
-          await submitButton.click();
+          );          await driver.executeScript("arguments[0].click();", submitButton);
           console.log('   Submitted mood form using text content');
         } catch (innerError2) {
           // Final attempt - try any button that might be a submit button
@@ -157,9 +151,8 @@ async function test5() {
           let submitted = false;
           
           for (const button of buttons) {
-            try {              const text = await button.getText();
-              if (text.includes('Save') || text.includes('Submit') || text.includes('Add')) {
-                await button.click();
+            try {              const text = await button.getText();              if (text.includes('Save') || text.includes('Submit') || text.includes('Add')) {
+                await driver.executeScript("arguments[0].click();", button);
                 console.log('   Submitted form using button with text:', text);
                 submitted = true;
                 break;

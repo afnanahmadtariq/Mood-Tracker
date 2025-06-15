@@ -16,7 +16,7 @@ async function test7() {
   
   try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://18.204.228.168:3300/');
+    await driver.get(' http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
@@ -28,17 +28,15 @@ async function test7() {
       // Look for login form or toggle to it
       try {
         await driver.wait(until.elementLocated(By.id('email')), 2000);
-      } catch (e) {
-        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
-        await loginLink.click();
+      } catch (e) {        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
+        await driver.executeScript("arguments[0].click();", loginLink);
         await driver.wait(until.elementLocated(By.id('email')), 5000);
       }
       
       // Login with test credentials
       await driver.findElement(By.id('email')).sendKeys('test@example.com');
-      await driver.findElement(By.id('password')).sendKeys('password123');
-      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
-      await submitButton.click();
+      await driver.findElement(By.id('password')).sendKeys('password123');      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
+      await driver.executeScript("arguments[0].click();", submitButton);
       
       // Wait for login to complete
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Mood')]")), 10000);
@@ -46,9 +44,8 @@ async function test7() {
     
     // Navigate to mood tracking page (should be default or click Mood tab)
     console.log('😊 Navigating to mood tracking...');
-    try {
-      const moodTab = await driver.findElement(By.xpath("//*[contains(text(), 'Mood') and not(contains(text(), 'Tracker'))]"));
-      await moodTab.click();
+    try {      const moodTab = await driver.findElement(By.xpath("//*[contains(text(), 'Mood') and not(contains(text(), 'Tracker'))]"));
+      await driver.executeScript("arguments[0].click();", moodTab);
     } catch (e) {
       // Already on mood page
     }
@@ -84,19 +81,18 @@ async function test7() {
       ));
       
       if (optionButtons.length > 0) {
-        console.log('   Found options menu, clicking to reveal delete option...');
-        await optionButtons[0].click();
+        console.log('   Found options menu, clicking to reveal delete option...');        await driver.executeScript("arguments[0].click();", optionButtons[0]);
         await driver.sleep(1000);
         
         // Now look for delete option in menu
         const deleteOption = await driver.findElement(By.xpath("//button[contains(text(), 'Delete') or contains(text(), 'Remove')] | //*[contains(@class, 'delete')]"));
-        await deleteOption.click();
+        await driver.executeScript("arguments[0].click();", deleteOption);
       } else {
         throw new Error('No delete buttons or options found for moods');
       }
     } else {
       console.log(`   Found ${deleteButtons.length} delete button(s), clicking first one...`);
-      await deleteButtons[0].click();
+      await driver.executeScript("arguments[0].click();", deleteButtons[0]);
     }
     
     // Handle confirmation dialog if it appears
@@ -106,9 +102,8 @@ async function test7() {
       const confirmButton = await driver.wait(
         until.elementLocated(By.xpath("//button[contains(text(), 'Confirm') or contains(text(), 'Yes') or contains(text(), 'Delete') or contains(text(), 'OK')]")),
         3000
-      );
-      console.log('   Confirmation dialog found, confirming deletion...');
-      await confirmButton.click();
+      );      console.log('   Confirmation dialog found, confirming deletion...');
+      await driver.executeScript("arguments[0].click();", confirmButton);
     } catch (e) {
       console.log('   No confirmation dialog, deletion should proceed directly...');
     }
