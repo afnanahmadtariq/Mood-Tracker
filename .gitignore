@@ -25,3 +25,5 @@ mood-tracker/.vercel
 # typescript
 mood-tracker/*.tsbuildinfo
 mood-tracker/next-env.d.ts
+
+testcases/node_modules

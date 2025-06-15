@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 async function test6() {
-  console.log('Starting Test 6: Delete a mood -> That mood is deleted from the list');
+  console.log('Starting Test 6: Navigate to analytics -> Now showing charts and graphs');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -13,15 +13,13 @@ async function test6() {
     .forBrowser('chrome')
     .setChromeOptions(options)
     .build();
-  
-  try {
-    // Navigate to homepage and login first
+    try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
     await driver.get('http://18.204.228.168:3300/');
     await driver.wait(until.titleContains('Mood'), 5000);
-    
+
     // Check if already logged in, if not, perform login
-    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Mood') and (contains(text(), 'Track') or contains(text(), 'Add'))]"));
+    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
     
     if (isLoggedIn.length === 0) {
       console.log('🔐 Not logged in, performing login...');
@@ -42,132 +40,52 @@ async function test6() {
       await submitButton.click();
       
       // Wait for login to complete
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Mood')]")), 10000);
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics')]")), 10000);
     }
-    
-    // Navigate to mood tracking page (should be default or click Mood tab)
-    console.log('😊 Navigating to mood tracking...');
-    try {
-      const moodTab = await driver.findElement(By.xpath("//*[contains(text(), 'Mood') and not(contains(text(), 'Tracker'))]"));
-      await moodTab.click();
-    } catch (e) {
-      // Already on mood page
-    }
-    
-    // Wait for mood list to load
-    await driver.sleep(2000);
-    
-    // Count existing moods before deletion
-    console.log('📊 Counting existing moods...');
-    const existingMoods = await driver.findElements(By.xpath("//*[contains(@class, 'mood') or contains(text(), 'Happy') or contains(text(), 'Test mood entry')] | //div[contains(., 'mood')] | //li[contains(., 'mood')]"));
-    const initialMoodCount = existingMoods.length;
-    console.log(`   Initial mood count: ${initialMoodCount}`);
-    
-    if (initialMoodCount === 0) {
-      throw new Error('No moods found to delete. Make sure test4 ran successfully first.');
-    }
-    
-    // Find a mood to delete (look for delete buttons or options)
-    console.log('🗑️  Looking for mood to delete...');
-    
-    // Look for delete buttons (common patterns: Delete, Remove, X, trash icon)
-    const deleteButtons = await driver.findElements(By.xpath(
-      "//button[contains(text(), 'Delete') or contains(text(), 'Remove') or contains(text(), '×') or contains(text(), '🗑️')] | " +
-      "//*[contains(@class, 'delete') or contains(@class, 'remove') or contains(@class, 'trash')] | " +
-      "//button[contains(@title, 'Delete') or contains(@title, 'Remove')]"
+
+    // Navigate to Analytics page
+    console.log('� Navigating to Analytics page...');
+    const analyticsButton = await driver.findElement(By.xpath(
+      "//button[contains(text(), 'View Analytics') or contains(text(), 'Analytics') or contains(text(), 'View Charts')] | " +
+      "//a[contains(text(), 'View Analytics') or contains(text(), 'Analytics') or contains(text(), 'View Charts')] | " +
+      "//*[contains(@class, 'analytics') and (contains(text(), 'View') or contains(text(), 'Open'))] | " +
+      "//button[contains(text(), '📊') or contains(text(), 'Chart')] | " +
+      "//*[contains(@href, 'analytics')] | " +
+      "//*[contains(@onclick, 'analytics')]"
     ));
     
-    if (deleteButtons.length === 0) {
-      // Look for context menus or options buttons
-      const optionButtons = await driver.findElements(By.xpath(
-        "//button[contains(text(), '⋮') or contains(text(), '...') or contains(@class, 'options') or contains(@class, 'menu')]"
-      ));
-      
-      if (optionButtons.length > 0) {
-        console.log('   Found options menu, clicking to reveal delete option...');
-        await optionButtons[0].click();
-        await driver.sleep(1000);
-        
-        // Now look for delete option in menu
-        const deleteOption = await driver.findElement(By.xpath("//button[contains(text(), 'Delete') or contains(text(), 'Remove')] | //*[contains(@class, 'delete')]"));
-        await deleteOption.click();
-      } else {
-        throw new Error('No delete buttons or options found for moods');
-      }
+    // Click the Analytics button
+    await analyticsButton.click();
+    
+    // Wait for analytics page to load
+    console.log('⏳ Waiting for analytics page to load...');
+    await driver.sleep(2000);
+
+    // Check for charts/graphs (should exist if moods have been added in previous tests)
+    console.log('📈 Checking for charts and graphs...');
+    const charts = await driver.findElements(By.xpath(
+      "//canvas | " +
+      "//*[contains(@class, 'chart') or contains(@class, 'analytics') or contains(@class, 'recharts') or contains(@class, 'chartjs')] | " +
+      "//*[contains(text(), 'Chart') or contains(text(), 'Graph') or contains(text(), 'Mood Trends')]"
+    ));
+    
+    if (charts.length > 0) {
+      console.log('✓ Test 6 Passed: Analytics page shows charts and graphs');
+      console.log(`   Found ${charts.length} chart/graph elements`);
     } else {
-      console.log(`   Found ${deleteButtons.length} delete button(s), clicking first one...`);
-      await deleteButtons[0].click();
-    }
-    
-    // Handle confirmation dialog if it appears
-    console.log('⏳ Handling potential confirmation dialog...');
-    try {
-      // Look for confirmation dialog
-      const confirmButton = await driver.wait(
-        until.elementLocated(By.xpath("//button[contains(text(), 'Confirm') or contains(text(), 'Yes') or contains(text(), 'Delete') or contains(text(), 'OK')]")),
-        3000
-      );
-      console.log('   Confirmation dialog found, confirming deletion...');
-      await confirmButton.click();
-    } catch (e) {
-      console.log('   No confirmation dialog, deletion should proceed directly...');
-    }
-    
-    // Wait for deletion to complete
-    console.log('⏳ Waiting for mood to be deleted...');
-    await driver.sleep(2000); // Give time for the deletion to be processed
-    
-    // Check for success feedback
-    try {
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'deleted') or contains(text(), 'removed') or contains(text(), 'success') or contains(@class, 'success')]")), 5000);
-      console.log('   ✓ Success message found');
-    } catch (e) {
-      console.log('   No explicit success message, checking mood list...');
-    }
-    
-    // Count moods after deletion
-    console.log('✅ Verifying mood was deleted from list...');
-    await driver.sleep(1000); // Allow time for UI to update
-    
-    const updatedMoods = await driver.findElements(By.xpath("//*[contains(@class, 'mood') or contains(text(), 'Happy') or contains(text(), 'Test mood entry')] | //div[contains(., 'mood')] | //li[contains(., 'mood')]"));
-    const finalMoodCount = updatedMoods.length;
-    console.log(`   Final mood count: ${finalMoodCount}`);
-    
-    // Check if mood was deleted successfully
-    if (finalMoodCount < initialMoodCount) {
-      console.log('✓ Test 6 Passed: Mood was successfully deleted from the list');
-      console.log(`   Mood count decreased from ${initialMoodCount} to ${finalMoodCount}`);
-    } else if (finalMoodCount === initialMoodCount) {
-      // Check if the page content has changed (maybe the mood was deleted but count is same due to pagination or other factors)
-      const pageText = await driver.findElement(By.tagName('body')).getText();
-      
-      if (pageText.includes('deleted') || pageText.includes('removed')) {
-        console.log('✓ Test 6 Passed: Mood deletion confirmed by page content (count unchanged due to UI behavior)');
-      } else {
-        throw new Error(`Mood was not deleted from list. Count remained ${finalMoodCount}`);
-      }
-    } else {
-      throw new Error(`Unexpected behavior: mood count increased from ${initialMoodCount} to ${finalMoodCount}`);
-    }
-    
+      throw new Error('Analytics page did not show charts/graphs as expected. Make sure test5 ran successfully first to add mood data.');
+    }    
   } catch (error) {
     console.log('✗ Test 6 Failed:', error.message);
     
-    // Check for error messages
+    // Additional debugging
     try {
-      const errorElement = await driver.findElement(By.xpath("//*[contains(@class, 'error') or contains(@class, 'alert') or contains(text(), 'Error')]"));
-      const errorText = await errorElement.getText();
-      console.log(`   Error message: ${errorText}`);
-    } catch (e) {
-      // No error message found
-    }
-    
-    // Additional debugging information
-    try {
+      const currentUrl = await driver.getCurrentUrl();
       const pageText = await driver.findElement(By.tagName('body')).getText();
+      console.log(`   Current URL: ${currentUrl}`);
       console.log(`   Page content sample: "${pageText.substring(0, 200)}..."`);
     } catch (e) {
-      // Unable to get page content
+      // Debugging failed
     }
     
     process.exit(1);
@@ -176,4 +94,4 @@ async function test6() {
   }
 }
 
-test6();
+test6()

@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 async function test9() {
-  console.log('Starting Test 9: Change profile Name -> Profile Name changed');
+  console.log('Starting Test 9: Change profile DoB -> Profile DoB changed');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -44,44 +44,36 @@ async function test9() {
       // Wait for login to complete
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile')]")), 10000);
     }
-    
-    // Navigate to Profile page
+      // Navigate to Profile page
     console.log('👤 Navigating to Profile page...');
-    const profileLink = await driver.findElement(By.xpath("//*[contains(text(), 'Profile') or contains(@href, 'profile')]"));
-    await profileLink.click();
+    const profileButton = await driver.findElement(By.xpath(
+      "//button[contains(., 'Profile')] | " +
+      "//button[.//span[contains(text(), 'Profile')]] | " +
+      "//button[contains(text(), '👤')]"
+    ));
+    await profileButton.click();
     
     // Wait for profile page to load
-    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Settings')]")), 10000);
+    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Settings')] | //input[@name='firstName'] | //input[@name='dateOfBirth']")), 10000);
     
-    // Find first name and last name input fields
-    console.log('👋 Looking for name fields...');
-    const firstNameInput = await driver.findElement(By.xpath(
-      "//input[@name='firstName'] | " +
-      "//input[@id='firstName'] | " +
-      "//input[contains(@placeholder, 'first') or contains(@placeholder, 'First')]"
+    // Find date of birth input field
+    console.log('📅 Looking for date of birth field...');
+    const dobInput = await driver.findElement(By.xpath(
+      "//input[@name='dateOfBirth'] | " +
+      "//input[@name='dob'] | " +
+      "//input[@type='date'] | " +
+      "//input[contains(@placeholder, 'birth') or contains(@placeholder, 'date')]"
     ));
     
-    const lastNameInput = await driver.findElement(By.xpath(
-      "//input[@name='lastName'] | " +
-      "//input[@id='lastName'] | " +
-      "//input[contains(@placeholder, 'last') or contains(@placeholder, 'Last')]"
-    ));
+    // Get current date of birth value
+    const currentDob = await dobInput.getAttribute('value');
+    console.log(`📊 Current DoB: ${currentDob}`);
     
-    // Get current name values
-    const currentFirstName = await firstNameInput.getAttribute('value');
-    const currentLastName = await lastNameInput.getAttribute('value');
-    console.log(`📊 Current name: "${currentFirstName} ${currentLastName}"`);
-    
-    // Set new name values
-    const newFirstName = 'UpdatedTest';
-    const newLastName = 'UpdatedUser';
-    console.log('📝 Changing profile name...');
-    
-    await firstNameInput.clear();
-    await firstNameInput.sendKeys(newFirstName);
-    
-    await lastNameInput.clear();
-    await lastNameInput.sendKeys(newLastName);
+    // Set new date of birth
+    const newDob = '1995-06-15'; // June 15, 1995
+    console.log('📝 Changing date of birth...');
+    await dobInput.clear();
+    await dobInput.sendKeys(newDob);
     
     // Submit the profile form
     console.log('🚀 Saving profile changes...');
@@ -94,46 +86,34 @@ async function test9() {
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'updated') or contains(text(), 'saved') or contains(text(), 'success') or contains(@class, 'success')]")), 5000);
       console.log('   ✓ Success message found');
     } catch (e) {
-      console.log('   No explicit success message, checking name change...');
+      console.log('   No explicit success message, checking DoB change...');
     }
     
-    // Verify name has changed
-    console.log('✅ Verifying profile name changed...');
+    // Verify date of birth has changed
+    console.log('✅ Verifying date of birth changed...');
     await driver.sleep(1000); // Allow time for form to update
     
-    const updatedFirstName = await firstNameInput.getAttribute('value');
-    const updatedLastName = await lastNameInput.getAttribute('value');
-    
-    if (updatedFirstName === newFirstName && updatedLastName === newLastName) {
-      console.log('✓ Test 9 Passed: Profile name successfully changed');
-      console.log(`   Name changed from "${currentFirstName} ${currentLastName}" to "${updatedFirstName} ${updatedLastName}"`);
+    const updatedDob = await dobInput.getAttribute('value');
+      if (updatedDob === newDob && updatedDob !== currentDob) {
+      console.log('✓ Test 9 Passed: Date of birth successfully changed');
+      console.log(`   DoB changed from "${currentDob}" to "${updatedDob}"`);
+    } else if (updatedDob === newDob) {
+      console.log('✓ Test 9 Passed: Date of birth set to new value');
+      console.log(`   DoB set to: "${updatedDob}"`);
     } else {
-      throw new Error(`Profile name was not changed correctly. Expected: ${newFirstName} ${newLastName}, Actual: ${updatedFirstName} ${updatedLastName}`);
+      throw new Error(`Date of birth was not changed. Expected: ${newDob}, Actual: ${updatedDob}`);
     }
     
-    // Additional verification - check if name is displayed elsewhere on the page
+    // Additional verification - check if DoB is displayed elsewhere on the page
     try {
-      const nameDisplay = await driver.findElements(By.xpath(`//*[contains(text(), '${newFirstName}') or contains(text(), '${newLastName}')]`));
-      if (nameDisplay.length > 0) {
-        console.log('   ✓ New name also displayed in profile view');
-        const displayText = await nameDisplay[0].getText();
-        console.log(`   Name display: "${displayText}"`);
+      const dobDisplay = await driver.findElements(By.xpath(`//*[contains(text(), '${newDob}') or contains(text(), 'June') or contains(text(), '1995')]`));
+      if (dobDisplay.length > 0) {
+        console.log('   ✓ New date of birth also displayed in profile view');
       }
     } catch (e) {
-      // Name might not be displayed elsewhere, that's okay
+      // DoB might not be displayed elsewhere, that's okay
     }
-    
-    // Check if header or navigation shows updated name
-    try {
-      const headerName = await driver.findElements(By.xpath(`//header//*[contains(text(), '${newFirstName}')] | //nav//*[contains(text(), '${newFirstName}')]`));
-      if (headerName.length > 0) {
-        console.log('   ✓ Updated name visible in header/navigation');
-      }
-    } catch (e) {
-      // Header might not show name, that's okay
-    }
-    
-  } catch (error) {
+      } catch (error) {
     console.log('✗ Test 9 Failed:', error.message);
     
     // Check for error messages

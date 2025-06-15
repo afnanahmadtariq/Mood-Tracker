@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 async function test7() {
-  console.log('Starting Test 7: Enter profile pic URL -> Pic changed');
+  console.log('Starting Test 7: Delete a mood -> That mood is deleted from the list');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,14 +14,13 @@ async function test7() {
     .setChromeOptions(options)
     .build();
   
-  try {
-    // Navigate to homepage and login first
+  try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
     await driver.get('http://18.204.228.168:3300/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
-    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));
+    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Mood') and (contains(text(), 'Track') or contains(text(), 'Add'))]"));
     
     if (isLoggedIn.length === 0) {
       console.log('🔐 Not logged in, performing login...');
@@ -42,83 +41,112 @@ async function test7() {
       await submitButton.click();
       
       // Wait for login to complete
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile')]")), 10000);
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Mood')]")), 10000);
     }
     
-    // Navigate to Profile page
-    console.log('👤 Navigating to Profile page...');
-    const profileLink = await driver.findElement(By.xpath("//*[contains(text(), 'Profile') or contains(@href, 'profile')]"));
-    await profileLink.click();
-    
-    // Wait for profile page to load
-    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Settings')]")), 10000);
-    
-    // Get current profile picture (if any) before change
-    console.log('🖼️  Checking current profile picture...');
-    let currentProfilePic = '';
+    // Navigate to mood tracking page (should be default or click Mood tab)
+    console.log('😊 Navigating to mood tracking...');
     try {
-      const profileImg = await driver.findElement(By.xpath("//img[contains(@class, 'profile') or contains(@alt, 'profile')] | //img[contains(@src, 'avatar')]"));
-      currentProfilePic = await profileImg.getAttribute('src');
-      console.log(`   Current profile pic: ${currentProfilePic.substring(0, 50)}...`);
+      const moodTab = await driver.findElement(By.xpath("//*[contains(text(), 'Mood') and not(contains(text(), 'Tracker'))]"));
+      await moodTab.click();
     } catch (e) {
-      console.log('   No current profile picture found');
+      // Already on mood page
     }
     
-    // Find profile picture URL input field
-    console.log('🔗 Looking for profile picture URL field...');
-    const profilePicInput = await driver.findElement(By.xpath(
-      "//input[@name='profilePicture'] | " +
-      "//input[@name='avatar'] | " +
-      "//input[@name='imageUrl'] | " +
-      "//input[contains(@placeholder, 'picture') or contains(@placeholder, 'image') or contains(@placeholder, 'avatar')]"
+    // Wait for mood list to load
+    await driver.sleep(2000);
+      // Count existing moods before deletion
+    console.log('📊 Counting existing moods...');
+    const existingMoods = await driver.findElements(By.xpath("//div[contains(@class, 'mood-card') or contains(@class, 'card-hover')] | //div[contains(@class, 'bg-white') and contains(@class, 'rounded')] | //li[contains(@class, 'mood')]"));
+    const initialMoodCount = existingMoods.length;
+    console.log(`   Initial mood count: ${initialMoodCount}`);
+    
+    if (initialMoodCount === 0) {
+      throw new Error('No moods found to delete. Make sure test4 ran successfully first.');
+    }
+    
+    // Find a mood to delete (look for delete buttons or options)
+    console.log('🗑️  Looking for mood to delete...');
+      // Look for delete buttons (common patterns: Delete, Remove, X, trash icon)
+    const deleteButtons = await driver.findElements(By.xpath(
+      "//button[contains(text(), 'Delete') or contains(text(), 'Remove') or contains(text(), '×') or contains(text(), '🗑️')] | " +
+      "//*[contains(@class, 'delete') or contains(@class, 'remove') or contains(@class, 'trash')] | " +
+      "//button[contains(@title, 'Delete') or contains(@title, 'Remove')] | " +
+      "//button[contains(@aria-label, 'Delete') or contains(@aria-label, 'Remove')] | " +
+      "//svg[contains(@class, 'trash')] | " +
+      "//*[contains(@class, 'mood-card')]//*[contains(@class, 'delete') or contains(text(), 'Delete')]"
     ));
     
-    // Clear existing value and enter new profile picture URL
-    const testImageUrl = 'https://via.placeholder.com/150/0000FF/FFFFFF?text=Test';
-    console.log('📝 Entering new profile picture URL...');
-    await profilePicInput.clear();
-    await profilePicInput.sendKeys(testImageUrl);
-    
-    // Submit the profile form
-    console.log('🚀 Saving profile changes...');
-    const saveButton = await driver.findElement(By.xpath("//button[contains(text(), 'Save') or contains(text(), 'Update') or @type='submit']"));
-    await saveButton.click();
-    
-    // Wait for save confirmation
-    console.log('⏳ Waiting for profile update...');
-    try {
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'updated') or contains(text(), 'saved') or contains(text(), 'success') or contains(@class, 'success')]")), 5000);
-      console.log('   ✓ Success message found');
-    } catch (e) {
-      console.log('   No explicit success message, checking picture change...');
+    if (deleteButtons.length === 0) {
+      // Look for context menus or options buttons
+      const optionButtons = await driver.findElements(By.xpath(
+        "//button[contains(text(), '⋮') or contains(text(), '...') or contains(@class, 'options') or contains(@class, 'menu')]"
+      ));
+      
+      if (optionButtons.length > 0) {
+        console.log('   Found options menu, clicking to reveal delete option...');
+        await optionButtons[0].click();
+        await driver.sleep(1000);
+        
+        // Now look for delete option in menu
+        const deleteOption = await driver.findElement(By.xpath("//button[contains(text(), 'Delete') or contains(text(), 'Remove')] | //*[contains(@class, 'delete')]"));
+        await deleteOption.click();
+      } else {
+        throw new Error('No delete buttons or options found for moods');
+      }
+    } else {
+      console.log(`   Found ${deleteButtons.length} delete button(s), clicking first one...`);
+      await deleteButtons[0].click();
     }
     
-    // Verify profile picture has changed
-    console.log('✅ Verifying profile picture changed...');
-    await driver.sleep(2000); // Allow time for image to load
-    
+    // Handle confirmation dialog if it appears
+    console.log('⏳ Handling potential confirmation dialog...');
     try {
-      const updatedProfileImg = await driver.findElement(By.xpath("//img[contains(@class, 'profile') or contains(@alt, 'profile')] | //img[contains(@src, 'avatar')]"));
-      const newProfilePic = await updatedProfileImg.getAttribute('src');
-      
-      if (newProfilePic !== currentProfilePic && (newProfilePic.includes('placeholder') || newProfilePic.includes(testImageUrl))) {
-        console.log('✓ Test 7 Passed: Profile picture successfully changed');
-        console.log(`   New profile pic: ${newProfilePic.substring(0, 50)}...`);
-      } else if (newProfilePic !== currentProfilePic) {
-        console.log('✓ Test 7 Passed: Profile picture changed (different from original)');
-        console.log(`   New profile pic: ${newProfilePic.substring(0, 50)}...`);
-      } else {
-        throw new Error('Profile picture did not change');
-      }
+      // Look for confirmation dialog
+      const confirmButton = await driver.wait(
+        until.elementLocated(By.xpath("//button[contains(text(), 'Confirm') or contains(text(), 'Yes') or contains(text(), 'Delete') or contains(text(), 'OK')]")),
+        3000
+      );
+      console.log('   Confirmation dialog found, confirming deletion...');
+      await confirmButton.click();
     } catch (e) {
-      // Check if the input field shows the new URL
-      const inputValue = await profilePicInput.getAttribute('value');
-      if (inputValue === testImageUrl) {
-        console.log('✓ Test 7 Passed: Profile picture URL saved in form');
-        console.log(`   Profile pic URL saved: ${inputValue}`);
+      console.log('   No confirmation dialog, deletion should proceed directly...');
+    }
+    
+    // Wait for deletion to complete
+    console.log('⏳ Waiting for mood to be deleted...');
+    await driver.sleep(2000); // Give time for the deletion to be processed
+    
+    // Check for success feedback
+    try {
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'deleted') or contains(text(), 'removed') or contains(text(), 'success') or contains(@class, 'success')]")), 5000);
+      console.log('   ✓ Success message found');
+    } catch (e) {
+      console.log('   No explicit success message, checking mood list...');
+    }
+      // Count moods after deletion
+    console.log('✅ Verifying mood was deleted from list...');
+    await driver.sleep(1000); // Allow time for UI to update
+    
+    const updatedMoods = await driver.findElements(By.xpath("//div[contains(@class, 'mood-card') or contains(@class, 'card-hover')] | //div[contains(@class, 'bg-white') and contains(@class, 'rounded')] | //li[contains(@class, 'mood')]"));
+    const finalMoodCount = updatedMoods.length;
+    console.log(`   Final mood count: ${finalMoodCount}`);
+    
+    // Check if mood was deleted successfully
+    if (finalMoodCount < initialMoodCount) {
+      console.log('✓ Test 7 Passed: Mood was successfully deleted from the list');
+      console.log(`   Mood count decreased from ${initialMoodCount} to ${finalMoodCount}`);
+    } else if (finalMoodCount === initialMoodCount) {
+      // Check if the page content has changed (maybe the mood was deleted but count is same due to pagination or other factors)
+      const pageText = await driver.findElement(By.tagName('body')).getText();
+      
+      if (pageText.includes('deleted') || pageText.includes('removed')) {
+        console.log('✓ Test 7 Passed: Mood deletion confirmed by page content (count unchanged due to UI behavior)');
       } else {
-        throw new Error('Profile picture URL was not saved');
+        throw new Error(`Mood was not deleted from list. Count remained ${finalMoodCount}`);
       }
+    } else {
+      throw new Error(`Unexpected behavior: mood count increased from ${initialMoodCount} to ${finalMoodCount}`);
     }
     
   } catch (error) {
@@ -131,6 +159,14 @@ async function test7() {
       console.log(`   Error message: ${errorText}`);
     } catch (e) {
       // No error message found
+    }
+    
+    // Additional debugging information
+    try {
+      const pageText = await driver.findElement(By.tagName('body')).getText();
+      console.log(`   Page content sample: "${pageText.substring(0, 200)}..."`);
+    } catch (e) {
+      // Unable to get page content
     }
     
     process.exit(1);

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { useAuth } from '../context/AuthContext'
 
 export default function ProfileForm() {
@@ -64,7 +63,8 @@ export default function ProfileForm() {
             <div className="text-center lg:text-left">
               <div className="flex flex-col items-center lg:items-start space-y-2 sm:space-y-3 lg:space-y-4">
                 {user.profilePicture ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={user.profilePicture}
                     alt="Profile"
                     width={80}
@@ -237,16 +237,17 @@ export default function ProfileForm() {
                   />
                   {formData.profilePicture && (
                     <div className="flex-shrink-0">
-                      <Image
-                        src={formData.profilePicture}
-                        alt="Profile preview"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg object-cover border border-gray-200"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.style.display = 'none'
-                        }}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                      src={formData.profilePicture}
+                      alt="Profile preview"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg object-cover border border-gray-200"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                      }}
                       />
                     </div>
                   )}

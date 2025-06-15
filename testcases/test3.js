@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 async function test3() {
-  console.log('Starting Test 3: Navigate to analytics -> Nothing showing');
+  console.log('Starting Test 3: Click view analytics in main page -> Analytics page opened');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,8 +14,7 @@ async function test3() {
     .setChromeOptions(options)
     .build();
   
-  try {
-    // Navigate to homepage and login first
+  try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
     await driver.get('http://18.204.228.168:3300/');
     await driver.wait(until.titleContains('Mood'), 5000);
@@ -45,52 +44,99 @@ async function test3() {
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics')]")), 10000);
     }
     
-    // Navigate to Analytics page
-    console.log('📊 Navigating to Analytics page...');
-    const analyticsLink = await driver.findElement(By.xpath("//*[contains(text(), 'Analytics') or contains(@href, 'analytics')]"));
-    await analyticsLink.click();
-    
-    // Wait for analytics page to load
-    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics') or contains(text(), 'Mood Trends')]")), 10000);
-    
-    // Check if analytics page shows "no data" or empty state
-    console.log('🔍 Checking for empty analytics state...');
-    
-    // Look for indicators that there's no data to display
-    const emptyStateIndicators = await driver.findElements(By.xpath(
-      "//*[contains(text(), 'No data') or " +
-      "contains(text(), 'no moods') or " +
-      "contains(text(), 'Start tracking') or " +
-      "contains(text(), 'Add some moods') or " +
-      "contains(text(), 'empty') or " +
-      "contains(@class, 'empty') or " +
-      "contains(@class, 'no-data')]"
+    // Ensure we're on the main page (Mood tracking page)
+    console.log('🏠 Navigating to main page...');
+    try {
+      const moodTab = await driver.findElement(By.xpath("//*[contains(text(), 'Mood') and not(contains(text(), 'Tracker'))]"));
+      await moodTab.click();
+      await driver.sleep(2000);
+    } catch (e) {
+      // Already on main page
+      console.log('   Already on main page');
+    }
+      // Look for "Analytics" button in the navigation (header)
+    console.log('🔍 Looking for "Analytics" navigation button...');
+    const analyticsButton = await driver.findElement(By.xpath(
+      "//button[contains(., 'Analytics')] | " +
+      "//button[.//span[contains(text(), 'Analytics')]] | " +
+      "//button[contains(text(), '📊')] | " +
+      "//*[contains(@class, 'md:flex')]//*[contains(text(), 'Analytics')]"
     ));
     
-    // Also check for absence of chart elements
-    const chartElements = await driver.findElements(By.xpath("//canvas | //*[contains(@class, 'chart')] | //*[contains(@class, 'graph')]"));
+    // Get current URL before clicking
+    const currentUrl = await driver.getCurrentUrl();
+    console.log(`📊 Current URL: ${currentUrl}`);
+      // Click the Analytics navigation button
+    console.log('👆 Clicking "Analytics" navigation button...');
+    await analyticsButton.click();
     
-    // Check for text indicating no analytics data
-    const analyticsContent = await driver.findElement(By.tagName('body')).getText();
-    const hasAnalyticsData = analyticsContent.includes('chart') || analyticsContent.includes('graph') || chartElements.length > 0;
+    // Wait for analytics content to load
+    console.log('⏳ Waiting for analytics content to load...');
     
-    if (emptyStateIndicators.length > 0 || !hasAnalyticsData) {
-      console.log('✓ Test 3 Passed: Analytics page shows no data (as expected with no mood entries)');
-      
-      if (emptyStateIndicators.length > 0) {
-        const emptyMessage = await emptyStateIndicators[0].getText();
-        console.log(`   Empty state message: "${emptyMessage}"`);
-      } else {
-        console.log('   No charts or graphs found - analytics is empty');
+    // Wait for analytics content to appear (either charts or empty state)
+    await driver.wait(async () => {
+      try {
+        const analyticsContent = await driver.findElements(By.xpath(
+          "//*[contains(text(), 'Analytics') or contains(text(), 'Mood Trends') or contains(text(), 'Chart') or contains(text(), 'Graph')] | " +
+          "//canvas | " +
+          "//*[contains(@class, 'chart') or contains(@class, 'analytics')] | " +
+          "//*[contains(text(), 'No data') or contains(text(), 'Add a mood to see analytics')]"
+        ));
+        
+        return analyticsContent.length > 0;
+      } catch (e) {
+        return false;
       }
+    }, 10000);
+      // Verify analytics page/content is displayed
+    console.log('✅ Verifying analytics page opened...');
+    
+    const analyticsPageContent = await driver.findElements(By.xpath(
+      "//*[contains(text(), 'Analytics') or contains(text(), 'Mood Trends') or contains(text(), 'Chart')] | " +
+      "//canvas | " +
+      "//*[contains(@class, 'chart') or contains(@class, 'analytics')] | " +
+      "//*[contains(text(), 'No data') or contains(text(), 'Add a mood to see analytics')]"
+    ));
+    
+    if (analyticsPageContent.length > 0) {
+      console.log('✓ Test 3 Passed: Analytics page opened successfully');
+      console.log(`   Found ${analyticsPageContent.length} analytics content elements`);
     } else {
-      // If there are charts, this might indicate existing data
-      console.log('ℹ️  Test 3 Note: Analytics page shows data (there may be existing mood entries)');
-      console.log('   This is acceptable if mood data already exists in the system');
+      throw new Error('Analytics page did not open properly - no analytics content found');
     }
     
-  } catch (error) {
+    // Additional verification - check for specific analytics elements
+    try {
+      const pageTitle = await driver.getTitle();
+      if (pageTitle.includes('Analytics') || pageTitle.includes('Chart')) {
+        console.log(`   ✓ Page title indicates analytics: "${pageTitle}"`);
+      }
+    } catch (e) {
+      // Title check failed, that's okay
+    }
+    
+    // Check for analytics-specific UI elements
+    try {
+      const analyticsUI = await driver.findElements(By.xpath("//canvas | //*[contains(@class, 'recharts')] | //*[contains(@class, 'chartjs')]"));
+      if (analyticsUI.length > 0) {
+        console.log(`   ✓ Found ${analyticsUI.length} chart/graph elements`);
+      }
+    } catch (e) {
+      // Chart elements check failed, that's okay
+    }
+      } catch (error) {
     console.log('✗ Test 3 Failed:', error.message);
+    
+    // Additional debugging
+    try {
+      const currentUrl = await driver.getCurrentUrl();
+      const pageText = await driver.findElement(By.tagName('body')).getText();
+      console.log(`   Current URL: ${currentUrl}`);
+      console.log(`   Page content sample: "${pageText.substring(0, 200)}..."`);
+    } catch (e) {
+      // Debugging failed
+    }
+    
     process.exit(1);
   } finally {
     await driver.quit();

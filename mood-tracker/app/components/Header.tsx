@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { useAuth } from '../context/AuthContext'
 
 interface HeaderProps {
@@ -83,20 +82,21 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
               className="flex items-center space-x-2 sm:space-x-3 text-sm rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 p-1.5 sm:p-2 hover:bg-gray-50 transition-all duration-200"
             >              
             {user?.profilePicture ? (
-                <Image
-                  className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl object-cover border-2 border-gray-200"
-                  src={user.profilePicture}
-                  alt="Profile"
-                  width={40}
-                  height={40}
-                />
-              ) : (
-                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center border-2 border-gray-200">
-                  <span className="text-white text-xs sm:text-sm font-bold">
-                    {user?.firstName?.[0]}{user?.lastName?.[0]}
-                  </span>
-                </div>
-              )}
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl object-cover border-2 border-gray-200"
+                src={user.profilePicture}
+                alt="Profile"
+                width={40}
+                height={40}
+              />
+            ) : (
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center border-2 border-gray-200">
+                <span className="text-white text-xs sm:text-sm font-bold">
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </span>
+              </div>
+            )}
               <div className="hidden lg:block text-left">
                 <p className="text-gray-800 font-semibold text-sm">
                   {user?.firstName} {user?.lastName}
@@ -115,18 +115,19 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                 <div className="px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center space-x-3">
                     {user?.profilePicture ? (
-                      <Image
-                        className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-cover"
-                        src={user.profilePicture}
-                        alt="Profile"
-                        width={48}
-                        height={48}
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                      className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-cover"
+                      src={user.profilePicture}
+                      alt="Profile"
+                      width={48}
+                      height={48}
                       />
                     ) : (
                       <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">
-                          {user?.firstName?.[0]}{user?.lastName?.[0]}
-                        </span>
+                      <span className="text-white font-bold text-sm">
+                        {user?.firstName?.[0]}{user?.lastName?.[0]}
+                      </span>
                       </div>
                     )}
                     <div>

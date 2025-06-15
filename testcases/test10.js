@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 async function test10() {
-  console.log('Starting Test 10: Click view analytics in main page -> Analytics page opened');
+  console.log('Starting Test 10: Change profile Name -> Profile Name changed');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -21,7 +21,7 @@ async function test10() {
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
-    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
+    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));
     
     if (isLoggedIn.length === 0) {
       console.log('🔐 Not logged in, performing login...');
@@ -42,117 +42,108 @@ async function test10() {
       await submitButton.click();
       
       // Wait for login to complete
-      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics')]")), 10000);
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile')]")), 10000);
     }
+      // Navigate to Profile page
+    console.log('👤 Navigating to Profile page...');
+    const profileButton = await driver.findElement(By.xpath(
+      "//button[contains(., 'Profile')] | " +
+      "//button[.//span[contains(text(), 'Profile')]] | " +
+      "//button[contains(text(), '👤')]"
+    ));
+    await profileButton.click();
     
-    // Ensure we're on the main page (Mood tracking page)
-    console.log('🏠 Navigating to main page...');
+    // Wait for profile page to load
+    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Settings')] | //input[@name='firstName'] | //input[@name='lastName']")), 10000);
+    
+    // Find first name and last name input fields
+    console.log('👋 Looking for name fields...');
+    const firstNameInput = await driver.findElement(By.xpath(
+      "//input[@name='firstName'] | " +
+      "//input[@id='firstName'] | " +
+      "//input[contains(@placeholder, 'first') or contains(@placeholder, 'First')]"
+    ));
+    
+    const lastNameInput = await driver.findElement(By.xpath(
+      "//input[@name='lastName'] | " +
+      "//input[@id='lastName'] | " +
+      "//input[contains(@placeholder, 'last') or contains(@placeholder, 'Last')]"
+    ));
+    
+    // Get current name values
+    const currentFirstName = await firstNameInput.getAttribute('value');
+    const currentLastName = await lastNameInput.getAttribute('value');
+    console.log(`📊 Current name: "${currentFirstName} ${currentLastName}"`);
+    
+    // Set new name values
+    const newFirstName = 'UpdatedTest';
+    const newLastName = 'UpdatedUser';
+    console.log('📝 Changing profile name...');
+    
+    await firstNameInput.clear();
+    await firstNameInput.sendKeys(newFirstName);
+    
+    await lastNameInput.clear();
+    await lastNameInput.sendKeys(newLastName);
+    
+    // Submit the profile form
+    console.log('🚀 Saving profile changes...');
+    const saveButton = await driver.findElement(By.xpath("//button[contains(text(), 'Save') or contains(text(), 'Update') or @type='submit']"));
+    await saveButton.click();
+    
+    // Wait for save confirmation
+    console.log('⏳ Waiting for profile update...');
     try {
-      const moodTab = await driver.findElement(By.xpath("//*[contains(text(), 'Mood') and not(contains(text(), 'Tracker'))]"));
-      await moodTab.click();
-      await driver.sleep(2000);
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'updated') or contains(text(), 'saved') or contains(text(), 'success') or contains(@class, 'success')]")), 5000);
+      console.log('   ✓ Success message found');
     } catch (e) {
-      // Already on main page
-      console.log('   Already on main page');
+      console.log('   No explicit success message, checking name change...');
     }
     
-    // Look for "View Analytics" button or link on the main page
-    console.log('🔍 Looking for "View Analytics" button on main page...');
-    const analyticsButton = await driver.findElement(By.xpath(
-      "//button[contains(text(), 'View Analytics') or contains(text(), 'Analytics') or contains(text(), 'View Charts')] | " +
-      "//a[contains(text(), 'View Analytics') or contains(text(), 'Analytics') or contains(text(), 'View Charts')] | " +
-      "//*[contains(@class, 'analytics') and (contains(text(), 'View') or contains(text(), 'Open'))] | " +
-      "//button[contains(text(), '📊') or contains(text(), 'Chart')] | " +
-      "//*[contains(@href, 'analytics')] | " +
-      "//*[contains(@onclick, 'analytics')]"
-    ));
+    // Verify name has changed
+    console.log('✅ Verifying profile name changed...');
+    await driver.sleep(1000); // Allow time for form to update
     
-    // Get current URL before clicking
-    const currentUrl = await driver.getCurrentUrl();
-    console.log(`📊 Current URL: ${currentUrl}`);
-    
-    // Click the View Analytics button
-    console.log('👆 Clicking "View Analytics" button...');
-    await analyticsButton.click();
-    
-    // Wait for page navigation or content change
-    console.log('⏳ Waiting for analytics page to load...');
-    
-    // Wait for either URL change or analytics content to appear
-    await driver.wait(async () => {
-      try {
-        const newUrl = await driver.getCurrentUrl();
-        const analyticsContent = await driver.findElements(By.xpath(
-          "//*[contains(text(), 'Analytics') or contains(text(), 'Mood Trends') or contains(text(), 'Chart') or contains(text(), 'Graph')] | " +
-          "//canvas | " +
-          "//*[contains(@class, 'chart') or contains(@class, 'analytics')]"
-        ));
-        
-        return newUrl !== currentUrl || analyticsContent.length > 0;
-      } catch (e) {
-        return false;
-      }
-    }, 10000);
-    
-    // Verify we're on the analytics page
-    console.log('✅ Verifying analytics page opened...');
-    
-    const finalUrl = await driver.getCurrentUrl();
-    const analyticsPageContent = await driver.findElements(By.xpath(
-      "//*[contains(text(), 'Analytics') or contains(text(), 'Mood Trends') or contains(text(), 'Chart')] | " +
-      "//canvas | " +
-      "//*[contains(@class, 'chart') or contains(@class, 'analytics')]"
-    ));
-    
-    // Check if URL changed to analytics
-    const urlContainsAnalytics = finalUrl.includes('analytics') || finalUrl.includes('tab=analytics');
-    
-    if (urlContainsAnalytics && analyticsPageContent.length > 0) {
-      console.log('✓ Test 10 Passed: Analytics page opened successfully');
-      console.log(`   URL changed to: ${finalUrl}`);
-      console.log(`   Found ${analyticsPageContent.length} analytics content elements`);
-    } else if (analyticsPageContent.length > 0) {
-      console.log('✓ Test 10 Passed: Analytics content loaded successfully (SPA navigation)');
-      console.log(`   Found ${analyticsPageContent.length} analytics content elements`);
-      console.log(`   URL: ${finalUrl}`);
-    } else if (urlContainsAnalytics) {
-      console.log('✓ Test 10 Passed: Navigated to analytics URL');
-      console.log(`   URL changed to: ${finalUrl}`);
+    const updatedFirstName = await firstNameInput.getAttribute('value');
+    const updatedLastName = await lastNameInput.getAttribute('value');
+      if (updatedFirstName === newFirstName && updatedLastName === newLastName) {
+      console.log('✓ Test 10 Passed: Profile name successfully changed');
+      console.log(`   Name changed from "${currentFirstName} ${currentLastName}" to "${updatedFirstName} ${updatedLastName}"`);
     } else {
-      throw new Error('Analytics page did not open properly');
+      throw new Error(`Profile name was not changed correctly. Expected: ${newFirstName} ${newLastName}, Actual: ${updatedFirstName} ${updatedLastName}`);
     }
     
-    // Additional verification - check for specific analytics elements
+    // Additional verification - check if name is displayed elsewhere on the page
     try {
-      const pageTitle = await driver.getTitle();
-      if (pageTitle.includes('Analytics') || pageTitle.includes('Chart')) {
-        console.log(`   ✓ Page title indicates analytics: "${pageTitle}"`);
+      const nameDisplay = await driver.findElements(By.xpath(`//*[contains(text(), '${newFirstName}') or contains(text(), '${newLastName}')]`));
+      if (nameDisplay.length > 0) {
+        console.log('   ✓ New name also displayed in profile view');
+        const displayText = await nameDisplay[0].getText();
+        console.log(`   Name display: "${displayText}"`);
       }
     } catch (e) {
-      // Title check failed, that's okay
+      // Name might not be displayed elsewhere, that's okay
     }
     
-    // Check for analytics-specific UI elements
+    // Check if header or navigation shows updated name
     try {
-      const analyticsUI = await driver.findElements(By.xpath("//canvas | //*[contains(@class, 'recharts')] | //*[contains(@class, 'chartjs')]"));
-      if (analyticsUI.length > 0) {
-        console.log(`   ✓ Found ${analyticsUI.length} chart/graph elements`);
+      const headerName = await driver.findElements(By.xpath(`//header//*[contains(text(), '${newFirstName}')] | //nav//*[contains(text(), '${newFirstName}')]`));
+      if (headerName.length > 0) {
+        console.log('   ✓ Updated name visible in header/navigation');
       }
     } catch (e) {
-      // Chart elements check failed, that's okay
+      // Header might not show name, that's okay
     }
-    
-  } catch (error) {
+      } catch (error) {
     console.log('✗ Test 10 Failed:', error.message);
     
-    // Additional debugging
+    // Check for error messages
     try {
-      const currentUrl = await driver.getCurrentUrl();
-      const pageText = await driver.findElement(By.tagName('body')).getText();
-      console.log(`   Current URL: ${currentUrl}`);
-      console.log(`   Page content sample: "${pageText.substring(0, 200)}..."`);
+      const errorElement = await driver.findElement(By.xpath("//*[contains(@class, 'error') or contains(@class, 'alert') or contains(text(), 'Error')]"));
+      const errorText = await errorElement.getText();
+      console.log(`   Error message: ${errorText}`);
     } catch (e) {
-      // Debugging failed
+      // No error message found
     }
     
     process.exit(1);

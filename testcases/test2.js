@@ -38,7 +38,7 @@ async function test2() {
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Welcome Back') or contains(text(), 'Sign in')]")), 5000);
     }
     
-    // Use test credentials (you may need to create a test user first)
+    // Use test credentials
     const testEmail = 'test@example.com';
     const testPassword = 'password123';
     

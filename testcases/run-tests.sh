@@ -34,7 +34,7 @@ else
 fi
 
 echo ""
-echo "--- Test 3: Navigate to analytics -> Nothing showing ---"
+echo "--- Test 3: Click view analytics in main page -> Analytics page opened ---"
 if node test3.js; then
     echo "✓ Test 3 PASSED"
     ((TEST_PASSED++))
@@ -44,7 +44,7 @@ else
 fi
 
 echo ""
-echo "--- Test 4: Save a mood -> Mood is added to list ---"
+echo "--- Test 4: Navigate to analytics -> Nothing showing ---"
 if node test4.js; then
     echo "✓ Test 4 PASSED"
     ((TEST_PASSED++))
@@ -54,7 +54,7 @@ else
 fi
 
 echo ""
-echo "--- Test 5: Navigate to analytics -> Now showing charts and graphs ---"
+echo "--- Test 5: Save a mood -> Mood is added to list ---"
 if node test5.js; then
     echo "✓ Test 5 PASSED"
     ((TEST_PASSED++))
@@ -64,7 +64,7 @@ else
 fi
 
 echo ""
-echo "--- Test 6: Delete a mood -> That mood is deleted from the list ---"
+echo "--- Test 6: Navigate to analytics -> Now showing charts and graphs ---"
 if node test6.js; then
     echo "✓ Test 6 PASSED"
     ((TEST_PASSED++))
@@ -74,7 +74,7 @@ else
 fi
 
 echo ""
-echo "--- Test 7: Enter profile pic URL -> Pic changed ---"
+echo "--- Test 7: Delete a mood -> That mood is deleted from the list ---"
 if node test7.js; then
     echo "✓ Test 7 PASSED"
     ((TEST_PASSED++))
@@ -84,7 +84,7 @@ else
 fi
 
 echo ""
-echo "--- Test 8: Change profile DoB -> Profile DoB changed ---"
+echo "--- Test 8: Enter profile pic URL -> Pic changed ---"
 if node test8.js; then
     echo "✓ Test 8 PASSED"
     ((TEST_PASSED++))
@@ -94,7 +94,7 @@ else
 fi
 
 echo ""
-echo "--- Test 9: Change profile Name -> Profile Name changed ---"
+echo "--- Test 9: Change profile DoB -> Profile DoB changed ---"
 if node test9.js; then
     echo "✓ Test 9 PASSED"
     ((TEST_PASSED++))
@@ -104,7 +104,7 @@ else
 fi
 
 echo ""
-echo "--- Test 10: Click view analytics in main page -> Analytics page opened ---"
+echo "--- Test 10: Change profile Name -> Profile Name changed ---"
 if node test10.js; then
     echo "✓ Test 10 PASSED"
     ((TEST_PASSED++))
