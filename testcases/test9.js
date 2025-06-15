@@ -98,71 +98,20 @@ async function test9() {
     // Try multiple methods to clear and enter text
     let inputSuccess = false;
     try {
-      // Method 1: Standard clear and sendKeys
-      console.log('   Trying method 1: Standard clear and sendKeys...');
-      await dobInput.clear();
-      await dobInput.sendKeys(newDob);
-      
-      // Verify the input was set
-      const checkValue = await dobInput.getAttribute('value');
-      if (checkValue === newDob) {
-        console.log('   ✓ Method 1 successful');
-        inputSuccess = true;
-      } else {
-        console.log(`   Method 1 partial success: set "${checkValue}" instead of "${newDob}"`);
-      }
+      await driver.executeScript(`
+        const input = arguments[0];
+        const value = arguments[1];
+        
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+        nativeInputValueSetter.call(input, value);
+        
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.dispatchEvent(new Event('blur', { bubbles: true }));
+      `, dobInput, newDob);
     } catch (e) {
-      console.log('   Method 1 failed:', e.message);
+      console.log('Test: 9 failed:', e.message);
     }
-    
-    if (!inputSuccess) {
-      try {
-        console.log('   Trying method 2: JavaScript value setting...');
-        // Method 2: Use JavaScript to set value and trigger events
-        await driver.executeScript("arguments[0].focus();", dobInput);
-        await driver.executeScript("arguments[0].value = '';", dobInput);
-        await driver.executeScript("arguments[0].value = arguments[1];", dobInput, newDob);
-        
-        // Trigger events to notify React of the change
-        await driver.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", dobInput);
-        await driver.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", dobInput);
-        await driver.executeScript("arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", dobInput);
-        
-        // Verify the input was set
-        const checkValue = await dobInput.getAttribute('value');
-        if (checkValue === newDob) {
-          console.log('   ✓ Method 2 successful');
-          inputSuccess = true;
-        } else {
-          console.log(`   Method 2 result: "${checkValue}"`);
-        }
-      } catch (e) {
-        console.log('   Method 2 failed:', e.message);
-      }
-    }
-    
-    if (!inputSuccess) {
-      console.log('   Trying method 3: Character-by-character input...');
-      try {
-        // Method 3: Clear and type character by character
-        await dobInput.clear();
-        for (let char of newDob) {
-          await dobInput.sendKeys(char);
-          await driver.sleep(50); // Small delay between characters
-        }
-        
-        const checkValue = await dobInput.getAttribute('value');
-        if (checkValue === newDob) {
-          console.log('   ✓ Method 3 successful');
-          inputSuccess = true;
-        } else {
-          console.log(`   Method 3 result: "${checkValue}"`);
-        }
-      } catch (e) {
-        console.log('   Method 3 failed:', e.message);
-      }
-    }
-    
     // Final verification of input
     const finalValue = await dobInput.getAttribute('value');
     console.log(`📊 Final input value: "${finalValue}"`);
