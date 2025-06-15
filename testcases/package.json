@@ -4,8 +4,7 @@
   "description": "Selenium tests for Mood Tracker app",
   "main": "index.js",  "scripts": {
     "test": "./run-tests.sh",
-    "format-results": "node format-test-results.js",
-    "test-formatter": "node test-formatter.bat"
+    "format-results": "node format-test-results.js"
   },
   "dependencies": {
     "selenium-webdriver": "^4.15.0"

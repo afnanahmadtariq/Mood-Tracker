@@ -16,6 +16,7 @@ RUN npm install
 
 COPY . .
 
+COPY run-tests.sh ./run-tests.sh
 RUN chmod +x run-tests.sh
 
-CMD ["/app/run-tests.sh"]
+CMD ["./run-tests.sh"]
