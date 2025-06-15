@@ -126,17 +126,6 @@ export default function Home() {
     <div className="h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex flex-col">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />      <main className="flex-1 overflow-hidden">        {activeTab === 'mood' ? (
           <div className="w-full py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6 lg:space-y-8 h-full overflow-y-auto">
-            {/* Header Section */}
-            <div className="text-center space-y-2 sm:space-y-3 max-w-4xl mx-auto">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-                How are you feeling today? 
-                <span className="text-blue-600 ml-2">💭</span>
-              </h1>
-              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-                Take a moment to check in with yourself. Your emotions matter and tracking them can help you understand patterns in your well-being.
-              </p>
-            </div>
-
             {/* Desktop Layout: Side by side */}
             <div className="hidden lg:grid lg:grid-cols-5 gap-8">              {/* Mood Form Section - Left Side (Increased width) */}
               <div className="lg:col-span-3">
