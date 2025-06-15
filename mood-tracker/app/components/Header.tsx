@@ -166,7 +166,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 flex items-center space-x-3"
                 >
-                  <span>�</span>
+                  <span>🚪</span>
                   <span>Sign out</span>
                 </button>
               </div>

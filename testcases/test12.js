@@ -48,134 +48,115 @@ async function test12() {
     
     // Get current URL to verify we're in authenticated state
     const authenticatedUrl = await driver.getCurrentUrl();
-    console.log(`📊 Authenticated URL: ${authenticatedUrl}`);
+    console.log(`📊 Authenticated URL: ${authenticatedUrl}`);    // Look for profile dropdown button to open user menu
+    console.log('🔍 Looking for user profile dropdown...');
     
-    // Look for sign out button or menu
-    console.log('🔍 Looking for sign out option...');
-    let signOutButton;
+    // Find the profile dropdown button (has data-dropdown attribute)
+    const profileDropdown = await driver.findElement(By.css('[data-dropdown] button'));
+    console.log('   Found profile dropdown button, clicking to open menu...');
+    await driver.executeScript("arguments[0].click();", profileDropdown);
+    await driver.sleep(1000);
     
-    try {
-      // First try to find direct sign out button
-      signOutButton = await driver.findElement(By.xpath(
-        "//button[contains(text(), 'Sign Out') or contains(text(), 'Logout') or contains(text(), 'Log Out')] | " +
-        "//a[contains(text(), 'Sign Out') or contains(text(), 'Logout') or contains(text(), 'Log Out')] | " +
-        "//*[contains(@class, 'logout') or contains(@class, 'signout')] | " +
-        "//button[contains(text(), '🚪') or contains(text(), 'Exit')]"
-      ));
-    } catch (e) {
-      // If no direct sign out button, look for profile dropdown or menu
-      console.log('   No direct sign out button, looking for profile menu...');
-      
-      try {
-        const profileDropdown = await driver.findElement(By.xpath(
-          "//button[contains(@class, 'profile') or contains(@class, 'avatar') or contains(@class, 'user')] | " +
-          "//div[contains(@class, 'profile') or contains(@class, 'avatar') or contains(@class, 'user-menu')] | " +
-          "//*[contains(@class, 'dropdown')] | " +
-          "//button[contains(text(), '⚙️') or contains(text(), '👤')] | " +
-          "//*[contains(@class, 'header')]//*[contains(@class, 'user')]"
-        ));
-          console.log('   Found profile menu, clicking to open...');
-        await driver.executeScript("arguments[0].click();", profileDropdown);
-        await driver.sleep(1000);
-        
-        // Now look for sign out option in the dropdown
-        signOutButton = await driver.findElement(By.xpath(
-          "//a[contains(text(), 'Sign Out') or contains(text(), 'Logout') or contains(text(), 'Log Out')] | " +
-          "//button[contains(text(), 'Sign Out') or contains(text(), 'Logout') or contains(text(), 'Log Out')] | " +
-          "//*[contains(@class, 'dropdown')]//*[contains(text(), 'Sign Out') or contains(text(), 'Logout')] | " +
-          "//*[contains(@class, 'menu')]//*[contains(text(), 'Sign Out') or contains(text(), 'Logout')]"
-        ));
-        
-      } catch (e2) {
-        throw new Error('Could not find sign out option in profile menu or direct button');
-      }
-    }
-    
-    // Click the sign out button    console.log('👆 Clicking sign out...');
+    // Now look for the "Sign out" button using the specific XPath
+    console.log('🔍 Looking for "Sign out" button using specific XPath...');
+    const signOutButton = await driver.findElement(By.xpath('/html/body/div/header/div/div[1]/div[2]/div/button[2]'));
+      // Click the sign out button
+    console.log('👆 Clicking "Sign out" button...');
     await driver.executeScript("arguments[0].click();", signOutButton);
-    
-    // Wait for logout and redirect to login page
+      // Wait for logout and redirect to login page
     console.log('⏳ Waiting for logout and redirect...');
     
-    // Wait for either URL change or login form to appear
+    // Wait for the page to show the AuthWrapper (login form)
     await driver.wait(async () => {
       try {
-        const currentUrl = await driver.getCurrentUrl();
-        const loginElements = await driver.findElements(By.xpath(
-          "//*[contains(text(), 'Sign in') or contains(text(), 'Login') or contains(text(), 'Welcome Back')] | " +
-          "//input[@name='email'] | " +
-          "//input[@type='email'] | " +
-          "//*[contains(@class, 'login') or contains(@class, 'signin')] | " +
-          "//*[contains(text(), 'Email') and contains(text(), 'Password')]"
+        // Look for the distinctive elements of the AuthWrapper/login page
+        const authElements = await driver.findElements(By.xpath(
+          "//*[contains(text(), 'Mood Tracker')] | " +
+          "//*[contains(text(), 'Your personal companion for emotional wellness')] | " +
+          "//input[@id='email'] | " +
+          "//input[@id='password'] | " +
+          "//*[contains(text(), 'Sign In') or contains(text(), 'Sign Up')] | " +
+          "//*[text()='💭']"
         ));
         
-        // Check if we're no longer authenticated (URL changed or login form appeared)
-        return currentUrl !== authenticatedUrl || loginElements.length > 0;
+        // Also check that authenticated content is gone
+        const authenticatedElements = await driver.findElements(By.xpath(
+          "//button[contains(text(), 'My Moods')] | " +
+          "//button[contains(text(), 'Analytics')] | " +
+          "//button[contains(text(), 'Profile')] | " +
+          "//*[@data-dropdown]"
+        ));
+        
+        return authElements.length > 0 && authenticatedElements.length === 0;
       } catch (e) {
         return false;
       }
     }, 15000);
-    
-    // Verify we're on the login page
+      // Verify we're on the login page
     console.log('✅ Verifying redirect to login page...');
     
     const finalUrl = await driver.getCurrentUrl();
-    const loginPageContent = await driver.findElements(By.xpath(
-      "//*[contains(text(), 'Sign in') or contains(text(), 'Login') or contains(text(), 'Welcome Back')] | " +
-      "//input[@name='email'] | " +
-      "//input[@type='email'] | " +
-      "//input[@name='password'] | " +
-      "//*[contains(@class, 'login') or contains(@class, 'signin')]"
+    
+    // Look for AuthWrapper elements (the login/register interface)
+    const authWrapperElements = await driver.findElements(By.xpath(
+      "//*[contains(text(), 'Mood Tracker')] | " +
+      "//*[contains(text(), 'Your personal companion for emotional wellness')] | " +
+      "//input[@id='email'] | " +
+      "//input[@id='password'] | " +
+      "//*[text()='💭']"
     ));
     
     // Check for absence of authenticated content
     const authenticatedContent = await driver.findElements(By.xpath(
-      "//*[contains(text(), 'Profile') or contains(text(), 'Analytics') or contains(text(), 'Dashboard')] | " +
-      "//*[contains(@class, 'authenticated') or contains(@class, 'dashboard')]"
+      "//button[contains(text(), 'My Moods')] | " +
+      "//button[contains(text(), 'Analytics')] | " +
+      "//button[contains(text(), 'Profile')] | " +
+      "//*[@data-dropdown]"
     ));
     
-    if (loginPageContent.length > 0 && authenticatedContent.length === 0) {
+    if (authWrapperElements.length > 0 && authenticatedContent.length === 0) {
       console.log('✓ Test 12 Passed: Successfully signed out and redirected to login page');
       console.log(`   URL after logout: ${finalUrl}`);
-      console.log(`   Found ${loginPageContent.length} login page elements`);
+      console.log(`   Found ${authWrapperElements.length} login page elements`);
       console.log(`   Authenticated content elements: ${authenticatedContent.length} (should be 0)`);
-    } else if (loginPageContent.length > 0) {
-      console.log('✓ Test 12 Passed: Login form visible after sign out');
-      console.log(`   Found ${loginPageContent.length} login page elements`);
-      console.log(`   URL: ${finalUrl}`);
     } else {
-      throw new Error('Sign out did not redirect to login page properly');
+      throw new Error(`Sign out did not redirect to login page properly. Auth elements: ${authWrapperElements.length}, Authenticated elements: ${authenticatedContent.length}`);
     }
-    
-    // Additional verification - try to access protected content to confirm logout
+      // Additional verification - try to access protected content to confirm logout
     console.log('🔒 Additional verification: Checking if actually logged out...');
     try {
-      // Try to navigate to a protected page (if current URL doesn't indicate logout)
-      if (!finalUrl.includes('login') && !finalUrl.includes('signin')) {
-        await driver.get(' http://localhost:3000');
-        await driver.sleep(2000);
-        
-        const protectedCheck = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));
-        if (protectedCheck.length === 0) {
-          console.log('   ✓ Confirmed: Cannot access protected content after logout');
-        } else {
-          console.log('   ⚠️  Warning: Still seems to have access to protected content');
-        }
+      // Refresh the page to ensure we're not accessing cached content
+      await driver.get(' http://localhost:3000');
+      await driver.sleep(2000);
+      
+      // Check if we still see the AuthWrapper (login page)
+      const authCheck = await driver.findElements(By.xpath(
+        "//*[contains(text(), 'Your personal companion for emotional wellness')] | " +
+        "//input[@id='email']"
+      ));
+      const protectedCheck = await driver.findElements(By.xpath(
+        "//button[contains(text(), 'My Moods')] | " +
+        "//*[@data-dropdown]"
+      ));
+      
+      if (authCheck.length > 0 && protectedCheck.length === 0) {
+        console.log('   ✓ Confirmed: Cannot access protected content after logout');
+      } else {
+        console.log('   ⚠️  Warning: Still seems to have access to protected content');
       }
     } catch (e) {
-      // Additional verification failed, that's okay
+      console.log('   ⚠️  Additional verification failed, but that\'s okay');
     }
     
     // Check for login form fields specifically
     try {
-      const emailField = await driver.findElement(By.xpath("//input[@name='email'] | //input[@type='email']"));
-      const passwordField = await driver.findElement(By.xpath("//input[@name='password'] | //input[@type='password']"));
+      const emailField = await driver.findElement(By.id('email'));
+      const passwordField = await driver.findElement(By.id('password'));
       
       if (emailField && passwordField) {
         console.log('   ✓ Login form fields (email & password) are present and accessible');
       }
     } catch (e) {
-      // Login form fields check failed
       console.log('   ⚠️  Could not verify login form fields');
     }
     
