@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:24
 
 # Install Chrome and dependencies
 RUN apt-get update && apt-get install -y \
