@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 async function test5() {
-  console.log('Starting Test 5: Save a mood -> Mood is added to list');
+  console.log('Starting Test 5: Save a mood -> Mood is added to your mood journey list');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,250 +14,116 @@ async function test5() {
     .setChromeOptions(options)
     .build();
   
-  try {    // Navigate to homepage and login first
+  try {
+    // Navigate to homepage and login
     console.log('📍 Navigating to homepage...');
-    await driver.get(' http://localhost:3000');
+    await driver.get('http://localhost:3000');
     await driver.wait(until.titleContains('Mood'), 5000);
     
-    // Check if already logged in, if not, perform login
-    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Mood') and (contains(text(), 'Track') or contains(text(), 'Add'))]"));
-      if (isLoggedIn.length === 0) {
+    // Check if already logged in by looking for authenticated content
+    const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
+    
+    if (isLoggedIn.length === 0) {
       console.log('🔐 Not logged in, performing login...');
-        // Look for login form or toggle to it
+      
+      // Look for login form or toggle to it
       try {
         await driver.wait(until.elementLocated(By.id('email')), 2000);
       } catch (e) {
-        console.log('🔄 Looking for login toggle...');
-        const loginLink = await driver.wait(until.elementLocated(
-          By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]")
-        ), 5000);
-        await driver.wait(until.elementIsEnabled(loginLink), 3000);        await driver.executeScript("arguments[0].scrollIntoView(true);", loginLink);
-        await driver.sleep(500); // Small delay after scroll
-        await driver.wait(until.elementIsVisible(loginLink), 3000);
+        const loginLink = await driver.findElement(By.xpath("//*[contains(text(), 'Login') or contains(text(), 'Sign in') or contains(text(), 'Already have an account')]"));
         await driver.executeScript("arguments[0].click();", loginLink);
         await driver.wait(until.elementLocated(By.id('email')), 5000);
       }
-        // Login with test credentials
-      console.log('📝 Filling login form...');
-      const emailField = await driver.wait(until.elementLocated(By.id('email')), 5000);
-      await driver.wait(until.elementIsVisible(emailField), 3000);
-      await emailField.clear();
-      await emailField.sendKeys('test@example.com');
       
-      const passwordField = await driver.findElement(By.id('password'));
-      await driver.wait(until.elementIsVisible(passwordField), 3000);
-      await passwordField.clear();
-      await passwordField.sendKeys('password123');
+      // Login with test credentials
+      await driver.findElement(By.id('email')).sendKeys('test@example.com');
+      await driver.findElement(By.id('password')).sendKeys('password123');
       
-      const submitButton = await driver.wait(until.elementLocated(
-        By.xpath("//button[contains(text(), 'Sign In') or @type='submit']")
-      ), 5000);      await driver.wait(until.elementIsEnabled(submitButton), 3000);
-      await driver.executeScript("arguments[0].scrollIntoView(true);", submitButton);
-      await driver.sleep(500);
+      const submitButton = await driver.findElement(By.xpath("//button[contains(text(), 'Sign In') or @type='submit']"));
       await driver.executeScript("arguments[0].click();", submitButton);
       
-      // Wait for login to complete - look for page refresh or redirect
-      console.log('⏳ Waiting for login to complete...');
-      await driver.sleep(3000); // Give more time for any redirects
-      
-      // Wait for either Analytics link or any sign of successful login
-      try {
-        await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics') or contains(text(), 'Profile') or contains(text(), 'Log Mood') or contains(text(), 'Dashboard')]")), 15000);
-        console.log('✓ Login completed successfully');
-      } catch (waitError) {
-        console.log('⚠️ Login completion timeout, checking current state...');
-        const currentUrl = await driver.getCurrentUrl();
-        const pageSource = await driver.getPageSource();
-        console.log('Current URL after login attempt:', currentUrl);
-        console.log('Page contains Analytics:', pageSource.includes('Analytics'));
-        console.log('Page contains Profile:', pageSource.includes('Profile'));
-        console.log('Page contains any navigation:', pageSource.includes('nav') || pageSource.includes('menu'));
-        
-        // Try to refresh the page and wait again
-        console.log('🔄 Refreshing page and trying again...');
-        await driver.navigate().refresh();
-        await driver.sleep(2000);
-      }
+      // Wait for login to complete
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Profile')]")), 10000);
+      console.log('✓ Login completed');
+    } else {
+      console.log('✓ Already logged in');
     }
-        // Count existing moods before adding new one
-    console.log('📊 Counting existing moods...');
-    const existingMoods = await driver.findElements(By.xpath("//div[contains(@class, 'mood-card') or contains(@class, 'card-hover')] | //div[contains(., 'mood')] | //li[contains(@class, 'mood')]"));
+    
+    // Navigate to mood tab
+    console.log('📝 Navigating to mood tab...');
+    await driver.get('http://localhost:3000?tab=mood');
+    await driver.sleep(1000);
+    
+    // Count existing moods in the journey list before adding new one
+    console.log('📊 Counting existing moods in journey list...');
+    const existingMoods = await driver.findElements(By.xpath("//div[contains(@class, 'card-hover') and contains(@class, 'border')]"));
     const initialMoodCount = existingMoods.length;
     console.log(`   Initial mood count: ${initialMoodCount}`);
-      // Add a new mood
-    console.log('📝 Adding a new mood...');
-      // First ensure we're on the mood tab (My Moods)
-    try {
-      console.log('   Ensuring we are on the Mood tab...');
-      const moodTab = await driver.findElements(By.xpath("//button[contains(., 'My Moods') or contains(., 'Mood')]"));
-      if (moodTab.length > 0) {        console.log('   Clicking on Mood tab...');
-        await driver.executeScript("arguments[0].click();", moodTab[0]);
-        // Wait a moment for the tab content to load
-        await driver.sleep(1000);
-      }
-    } catch (e) {
-      console.log('   Already on mood tab or tab not found');
-    }
-
-    // Wait for the mood form to be visible
-    console.log('   Waiting for mood form to load...');
-    await driver.wait(until.elementLocated(By.xpath("//label[contains(text(), 'How are you feeling today?')]")), 10000);
-    console.log('   Mood form heading found');
-
-    // Find mood option buttons (using the class from MoodForm.tsx)
-    console.log('   Looking for mood option buttons...');
-    const moodButtons = await driver.wait(until.elementsLocated(By.className('mood-option')), 10000);
-    console.log(`   Found ${moodButtons.length} mood buttons`);
-
-    if (moodButtons.length === 0) {
-      throw new Error('No mood buttons found on the page');
-    }
-
-    // Click the second button (Happy) if available, otherwise the first one
-    const selectedMoodIndex = moodButtons.length > 1 ? 1 : 0;    await driver.executeScript("arguments[0].click();", moodButtons[selectedMoodIndex]);
-    console.log('   Selected mood');
+      // Select a mood using the provided XPath
+    console.log('😊 Selecting mood...');
+    const moodButton = await driver.wait(until.elementLocated(By.xpath('/html/body/div/main/div/div[2]/div[1]/div[2]/form/div[1]/div/button[1]')), 10000);
+    await driver.executeScript("arguments[0].scrollIntoView(true);", moodButton);
+    await driver.executeScript("arguments[0].click();", moodButton);
+    console.log('   ✓ Mood selected');
     
-    // Wait briefly for any UI updates after selection
-    await driver.sleep(1000);    // Fill the note field (optional in MoodForm)
+    // Add optional note
     try {
       const noteField = await driver.findElement(By.id('note'));
-      await noteField.sendKeys('Test mood entry from automated test');
-      console.log('   Added note');
+      await noteField.sendKeys('Test mood entry for journey list');
+      console.log('   ✓ Note added');
     } catch (e) {
-      console.log('   Note field not found or not required, continuing...');
-    }
-      // Submit the form
-    try {
-      // Try to find by data-testid first (Next.js best practice)
-      console.log('   Looking for submit button by data-testid...');      const submitButton = await driver.findElement(By.css('[data-testid="save-mood-button"]'));
-      await driver.executeScript("arguments[0].click();", submitButton);
-      console.log('   Submitted mood form using data-testid');
-    } catch (e) {
-      console.log('   Could not find submit button by data-testid, trying type attribute...');      try {
-        const submitButton = await driver.findElement(By.css('button[type="submit"]'));
-        await driver.executeScript("arguments[0].click();", submitButton);
-        console.log('   Submitted mood form using type attribute');
-      } catch (innerError) {
-        console.log('   Could not find submit button by type, trying alternative selectors...');
-        try {
-          // Try to find by text content
-          const submitButton = await driver.findElement(
-            By.xpath("//button[contains(text(), 'Save') or contains(text(), 'Submit') or contains(text(), 'Add')]")
-          );          await driver.executeScript("arguments[0].click();", submitButton);
-          console.log('   Submitted mood form using text content');
-        } catch (innerError2) {
-          // Final attempt - try any button that might be a submit button
-          const buttons = await driver.findElements(By.css('button'));
-          let submitted = false;
-          
-          for (const button of buttons) {
-            try {              const text = await button.getText();              if (text.includes('Save') || text.includes('Submit') || text.includes('Add')) {
-                await driver.executeScript("arguments[0].click();", button);
-                console.log('   Submitted form using button with text:', text);
-                submitted = true;
-                break;
-              }
-            } catch (btnError) {
-              // Continue to next button
-            }
-          }
-          
-          if (!submitted) {
-            throw new Error('Could not find any button to submit the form');
-          }
-        }
-      }
-    }    // Wait for success message or for a new mood to appear in the list
+      console.log('   Note field not found, continuing...');
+    }    // Submit the mood form
+    console.log('💾 Saving mood...');
+    const saveButton = await driver.findElement(By.xpath('/html/body/div/main/div/div[1]/div[1]/div/div[2]/form/button'));
+    await driver.executeScript("arguments[0].scrollIntoView(true);", saveButton);
+    await driver.executeScript("arguments[0].click();", saveButton);
+    
+    // Wait for success message or mood to be saved
     console.log('⏳ Waiting for mood to be saved...');
     try {
-      // Try to find success message by data-testid first (Next.js best practice)
-      console.log('   Looking for success message by data-testid...');
-      await driver.wait(
-        until.elementLocated(By.css('[data-testid="mood-saved-success"]')), 
-        5000
-      );
-      console.log('   ✅ Success message found by data-testid!');
+      await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Mood saved') or contains(text(), 'saved successfully')]")), 5000);
+      console.log('   ✓ Success message found');
     } catch (e) {
-      console.log('   No data-testid success message found, trying by text content...');
-      try {
-        // Try to find success message by text content
-        await driver.wait(
-          until.elementLocated(
-            By.xpath("//span[contains(text(), 'Mood saved') or contains(text(), 'saved successfully')]")
-          ), 
-          5000
-        );
-        console.log('   ✅ Success message found by text content!');
-      } catch (innerError) {
-        console.log('   No explicit success message found, checking if mood was added to list...');
-        
-        // Alternative: check if the mood list has one more entry
-        const updatedMoods = await driver.findElements(By.xpath("//div[contains(@class, 'card-hover') and contains(@class, 'border')]"));
-        
-        if (updatedMoods.length > initialMoodCount) {
-          console.log(`   ✅ Mood count increased: ${initialMoodCount} -> ${updatedMoods.length}`);
-        } else {
-          // Take screenshot for debugging
-          const screenshot = await driver.takeScreenshot();
-          require('fs').writeFileSync('submit-result.png', screenshot, 'base64');
-          
-          // Check if there's any error message on the page by data-testid
-          try {
-            const errorMsg = await driver.findElement(By.css('[data-testid="mood-error-message"]'));
-            const errorText = await errorMsg.getText();
-            console.log(`   ⚠️ Error message found by data-testid: ${errorText}`);
-          } catch (dataTestIdError) {
-            // Try to find error by class or text
-            try {
-              const errorMsg = await driver.findElement(By.xpath("//*[contains(@class, 'text-red') or contains(@class, 'error')]"));
-              const errorText = await errorMsg.getText();
-              console.log(`   ⚠️ Error message found by class: ${errorText}`);
-            } catch (errorFindError) {
-              // No error message found
-              console.log('   No error message found on the page');
-            }
-          }
-          
-          throw new Error('Mood was not saved: no success message and mood count did not increase');
-        }
-      }
+      console.log('   No explicit success message, checking mood list...');
     }
-    console.log('   Success message found');
     
-    // Wait a bit more for UI to update
-    await driver.sleep(2000);    // Count moods after adding new one
-    console.log('✅ Verifying mood was added to list...');
-    const updatedMoods = await driver.findElements(By.xpath("//div[contains(@class, 'mood-card') or contains(@class, 'card-hover')] | //div[contains(., 'mood')] | //li[contains(@class, 'mood')]"));
+    // Wait for UI to update
+    await driver.sleep(2000);
+    
+    // Verify mood was added to the journey list
+    console.log('✅ Verifying mood was added to journey list...');
+    const updatedMoods = await driver.findElements(By.xpath("//div[contains(@class, 'card-hover') and contains(@class, 'border')]"));
     const finalMoodCount = updatedMoods.length;
     console.log(`   Final mood count: ${finalMoodCount}`);
     
-    // Check if mood was added successfully
     if (finalMoodCount > initialMoodCount) {
-      console.log('✓ Test 5 Passed: Mood was successfully added to the list');
+      console.log('✓ Test 5 Passed: Mood was successfully added to the mood journey list');
       console.log(`   Mood count increased from ${initialMoodCount} to ${finalMoodCount}`);
       
-      // Try to find the specific mood we just added
+      // Try to find the newly added mood entry
       try {
-        const newMoodElement = await driver.findElement(By.xpath("//p[contains(@class, 'text-lg') and contains(@class, 'font-bold') and contains(text(), 'Happy')] | //p[contains(text(), 'Test mood entry')]"));
-        const moodText = await newMoodElement.getText();
-        console.log(`   New mood found: "${moodText}"`);
+        const latestMood = updatedMoods[0]; // First item should be the latest
+        const moodText = await latestMood.getText();
+        console.log(`   Latest mood entry: "${moodText.substring(0, 100)}..."`);
       } catch (e) {
-        console.log('   Mood added but specific text not found in list');
+        console.log('   Mood added successfully but couldn\'t read details');
       }
     } else {
-      throw new Error(`Mood was not added to list. Count remained ${finalMoodCount}`);
+      throw new Error(`Mood was not added to journey list. Count remained ${finalMoodCount}`);
     }
     
   } catch (error) {
     console.log('✗ Test 5 Failed:', error.message);
     
-    // Check for error messages
+    // Additional debugging
     try {
-      const errorElement = await driver.findElement(By.xpath("//*[contains(@class, 'error') or contains(@class, 'alert') or contains(text(), 'Error')]"));
-      const errorText = await errorElement.getText();
-      console.log(`   Error message: ${errorText}`);
+      const currentUrl = await driver.getCurrentUrl();
+      const pageText = await driver.findElement(By.tagName('body')).getText();
+      console.log(`   Current URL: ${currentUrl}`);
+      console.log(`   Page content sample: "${pageText.substring(0, 200)}..."`);
     } catch (e) {
-      // No error message found
+      // Debugging failed
     }
     
     process.exit(1);

@@ -241,10 +241,12 @@ function HomeContent() {
                       <div className="space-y-3">
                         {moods.slice(0, 8).map((moodEntry, index) => (
                           <div 
-                            key={moodEntry._id} 
+                            key={moodEntry._id}
+                            data-testid={`mood-entry-${moodEntry._id}`}
                             className="card-hover border border-gray-200 rounded-xl p-4 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
                             style={{ animationDelay: `${index * 0.05}s` }}
-                          >                            <div className="flex justify-between items-start">
+                          >
+                            <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-3 mb-2">
                                   <div className="text-2xl">{getMoodEmoji(moodEntry.mood)}</div>
@@ -283,9 +285,10 @@ function HomeContent() {
                                       }}
                                       fallback="--:--"
                                     />
-                                  </div>
-                                </div>                                <button
+                                  </div>                                </div>
+                                <button
                                   onClick={() => deleteMood(moodEntry._id)}
+                                  data-testid={`delete-mood-${moodEntry._id}`}
                                   className={`p-1 rounded-lg transition-colors duration-200 flex-shrink-0 ${
                                     deleteConfirm === moodEntry._id 
                                       ? 'text-red-600 bg-red-100 hover:bg-red-200' 
@@ -445,13 +448,13 @@ function HomeContent() {
                       </button>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {moods.slice(0, 6).map((moodEntry, index) => (
+                    <div className="space-y-3">                      {moods.slice(0, 6).map((moodEntry, index) => (
                         <div 
-                          key={moodEntry._id} 
+                          key={moodEntry._id}
+                          data-testid={`mood-entry-mobile-${moodEntry._id}`}
                           className="card-hover border border-gray-200 rounded-xl p-3 sm:p-4 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
                           style={{ animationDelay: `${index * 0.05}s` }}
-                        >                          <div className="flex justify-between items-start">
+                        ><div className="flex justify-between items-start">
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
                                 <div className="text-xl sm:text-2xl">{getMoodEmoji(moodEntry.mood)}</div>
@@ -493,6 +496,7 @@ function HomeContent() {
                                 </div>
                               </div>                              <button
                                 onClick={() => deleteMood(moodEntry._id)}
+                                data-testid={`delete-mood-mobile-${moodEntry._id}`}
                                 className={`p-1 rounded-lg transition-colors duration-200 flex-shrink-0 ${
                                   deleteConfirm === moodEntry._id 
                                     ? 'text-red-600 bg-red-100 hover:bg-red-200' 
