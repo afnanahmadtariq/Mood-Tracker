@@ -16,7 +16,7 @@ async function test10() {
   
   try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get('http://localhost:3000');
+    await driver.get('http://18.204.228.168:3300/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in by looking for authenticated content
@@ -160,51 +160,147 @@ async function test10() {
     } catch (e) {
       console.log('   No explicit success message, checking name change...');
     }
-    
-    // Verify name has changed
+      // Verify name has changed
     console.log('✅ Verifying profile name changed...');
     await driver.sleep(1000); // Allow time for form to update
     
     const updatedFirstName = await firstNameInput.getAttribute('value');
     const updatedLastName = await lastNameInput.getAttribute('value');
-      if (updatedFirstName === newFirstName && updatedLastName === newLastName) {
-      console.log('✓ Test 10 Passed: Profile name successfully changed');
-      console.log(`   Name changed from "${currentFirstName} ${currentLastName}" to "${updatedFirstName} ${updatedLastName}"`);
+    
+    console.log(`📊 Verification - Original name: "${currentFirstName} ${currentLastName}"`);
+    console.log(`📊 Verification - Expected name: "${newFirstName} ${newLastName}"`);
+    console.log(`📊 Verification - Actual name: "${updatedFirstName} ${updatedLastName}"`);
+    
+    if (updatedFirstName === newFirstName && updatedLastName === newLastName) {
+      if ((currentFirstName && currentFirstName !== newFirstName) || (currentLastName && currentLastName !== newLastName)) {
+        console.log('✓ Test 10 Passed: Profile name successfully changed');
+        console.log(`   Name changed from "${currentFirstName} ${currentLastName}" to "${updatedFirstName} ${updatedLastName}"`);
+      } else {
+        console.log('✓ Test 10 Passed: Profile name set to new values');
+        console.log(`   Name set to: "${updatedFirstName} ${updatedLastName}"`);
+      }
+      
+      // Additional verification - refresh page to check persistence
+      try {
+        console.log('🔄 Refreshing page to verify persistence...');
+        await driver.navigate().refresh();
+        await driver.wait(until.elementLocated(By.id('firstName')), 5000);
+        
+        const persistentFirstNameInput = await driver.findElement(By.id('firstName'));
+        const persistentLastNameInput = await driver.findElement(By.id('lastName'));
+        
+        const persistentFirstName = await persistentFirstNameInput.getAttribute('value');
+        const persistentLastName = await persistentLastNameInput.getAttribute('value');
+        
+        if (persistentFirstName === newFirstName && persistentLastName === newLastName) {
+          console.log('   ✓ Name changes persisted after page refresh');
+          console.log(`   Persistent name: "${persistentFirstName} ${persistentLastName}"`);
+        } else {
+          console.log(`   ⚠️ Name changes did not persist. Found: "${persistentFirstName} ${persistentLastName}"`);
+        }
+      } catch (e) {
+        console.log('   ⚠️ Could not verify persistence:', e.message);
+      }
+      
+      // Additional verification - check if name is displayed elsewhere on the page
+      try {
+        const nameDisplay = await driver.findElements(By.xpath(`//*[contains(text(), '${newFirstName}') or contains(text(), '${newLastName}')]`));
+        if (nameDisplay.length > 0) {
+          console.log('   ✓ New name also displayed in profile view');
+          const displayText = await nameDisplay[0].getText();
+          console.log(`   Name display: "${displayText}"`);
+        }
+      } catch (e) {
+        // Name might not be displayed elsewhere, that's okay
+      }
+      
+      // Check if header or navigation shows updated name
+      try {
+        const headerName = await driver.findElements(By.xpath(`//header//*[contains(text(), '${newFirstName}')] | //nav//*[contains(text(), '${newFirstName}')]`));
+        if (headerName.length > 0) {
+          console.log('   ✓ Updated name visible in header/navigation');
+        }
+      } catch (e) {
+        // Header might not show name, that's okay
+      }
+      
     } else {
+      console.log('✗ Profile name verification failed');
+      console.log(`   Expected first name: "${newFirstName}", actual: "${updatedFirstName}"`);
+      console.log(`   Expected last name: "${newLastName}", actual: "${updatedLastName}"`);
+      console.log(`   Original first name: "${currentFirstName}"`);
+      console.log(`   Original last name: "${currentLastName}"`);
+      
+      // Try to get more debug info
+      try {
+        const firstNameType = await firstNameInput.getAttribute('type');
+        const firstNameName = await firstNameInput.getAttribute('name');
+        const lastNameType = await lastNameInput.getAttribute('type');
+        const lastNameName = await lastNameInput.getAttribute('name');
+        console.log(`   Field debug - firstName type: "${firstNameType}", name: "${firstNameName}"`);
+        console.log(`   Field debug - lastName type: "${lastNameType}", name: "${lastNameName}"`);
+      } catch (e) {
+        console.log('   Could not get field debug info');
+      }
+      
       throw new Error(`Profile name was not changed correctly. Expected: ${newFirstName} ${newLastName}, Actual: ${updatedFirstName} ${updatedLastName}`);
-    }
-    
-    // Additional verification - check if name is displayed elsewhere on the page
-    try {
-      const nameDisplay = await driver.findElements(By.xpath(`//*[contains(text(), '${newFirstName}') or contains(text(), '${newLastName}')]`));
-      if (nameDisplay.length > 0) {
-        console.log('   ✓ New name also displayed in profile view');
-        const displayText = await nameDisplay[0].getText();
-        console.log(`   Name display: "${displayText}"`);
-      }
-    } catch (e) {
-      // Name might not be displayed elsewhere, that's okay
-    }
-    
-    // Check if header or navigation shows updated name
-    try {
-      const headerName = await driver.findElements(By.xpath(`//header//*[contains(text(), '${newFirstName}')] | //nav//*[contains(text(), '${newFirstName}')]`));
-      if (headerName.length > 0) {
-        console.log('   ✓ Updated name visible in header/navigation');
-      }
-    } catch (e) {
-      // Header might not show name, that's okay
-    }
-      } catch (error) {
+    }  } catch (error) {
     console.log('✗ Test 10 Failed:', error.message);
+    console.log('📊 Error details:', error.stack);
     
-    // Check for error messages
+    // Gather debugging information
     try {
-      const errorElement = await driver.findElement(By.xpath("//*[contains(@class, 'error') or contains(@class, 'alert') or contains(text(), 'Error')]"));
-      const errorText = await errorElement.getText();
-      console.log(`   Error message: ${errorText}`);
+      const currentUrl = await driver.getCurrentUrl();
+      const pageTitle = await driver.getTitle();
+      console.log(`   Current URL: ${currentUrl}`);
+      console.log(`   Page title: ${pageTitle}`);
+      
+      // Check for React error boundaries or console errors
+      const logs = await driver.manage().logs().get('browser');
+      if (logs.length > 0) {
+        console.log('   Browser console logs:');
+        logs.forEach(log => {
+          if (log.level.name === 'SEVERE' || log.level.name === 'WARNING') {
+            console.log(`     ${log.level.name}: ${log.message}`);
+          }
+        });
+      }
+    } catch (debugError) {
+      console.log('   Could not gather debug info:', debugError.message);
+    }
+    
+    // Check for error messages on the page
+    try {
+      const errorElements = await driver.findElements(By.xpath("//*[contains(@class, 'error') or contains(@class, 'alert') or contains(text(), 'Error') or contains(text(), 'failed') or contains(text(), 'invalid')]"));
+      if (errorElements.length > 0) {
+        console.log('   Error messages found on page:');
+        for (let i = 0; i < Math.min(errorElements.length, 3); i++) {
+          const errorText = await errorElements[i].getText();
+          if (errorText.trim()) {
+            console.log(`     - ${errorText}`);
+          }
+        }
+      }
     } catch (e) {
-      // No error message found
+      // No error messages found or could not access them
+    }
+    
+    // Try to capture the state of the name fields if they exist
+    try {
+      const firstNameField = await driver.findElement(By.id('firstName'));
+      const lastNameField = await driver.findElement(By.id('lastName'));
+      
+      const firstNameValue = await firstNameField.getAttribute('value');
+      const lastNameValue = await lastNameField.getAttribute('value');
+      const firstNameEnabled = await firstNameField.isEnabled();
+      const lastNameEnabled = await lastNameField.isEnabled();
+      const firstNameVisible = await firstNameField.isDisplayed();
+      const lastNameVisible = await lastNameField.isDisplayed();
+      
+      console.log(`   firstName field state - value: "${firstNameValue}", enabled: ${firstNameEnabled}, visible: ${firstNameVisible}`);
+      console.log(`   lastName field state - value: "${lastNameValue}", enabled: ${lastNameEnabled}, visible: ${lastNameVisible}`);
+    } catch (e) {
+      console.log('   Could not access name fields for debugging');
     }
     
     process.exit(1);

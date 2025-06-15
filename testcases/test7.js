@@ -15,7 +15,7 @@ async function test7() {
     .build();
   
   try {    // Navigate to homepage and login first    console.log('📍 Navigating to homepage...');
-    await driver.get('http://localhost:3000');
+    await driver.get('http://18.204.228.168:3300/');
     await driver.wait(until.titleContains('Mood'), 5000);
       // Check if already logged in by looking for authenticated content
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
