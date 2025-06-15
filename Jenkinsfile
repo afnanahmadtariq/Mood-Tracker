@@ -12,7 +12,8 @@ pipeline {
           git branch: 'main', url: 'https://github.com/afnanahmadtariq/Mood-Tracker.git'
         }
       }
-    }      stage('Test') {
+    }      
+    stage('Test') {
       steps {
         script {
             sh 'export JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}'
@@ -34,7 +35,8 @@ pipeline {
         }
       }
     }
-  }  post {
+  }  
+  post {
     always {
       script {
         def testResultsHtml = ''
