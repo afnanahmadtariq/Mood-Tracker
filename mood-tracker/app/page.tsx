@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from './context/AuthContext'
 import AuthWrapper from './components/AuthWrapper'
@@ -16,13 +16,13 @@ interface MoodEntry {
   date: string
 }
 
-export default function Home() {
-  const { user, loading } = useAuth()
+// Component that uses useSearchParams and needs Suspense
+function SearchParamsHandler({ 
+  setActiveTab 
+}: { 
+  setActiveTab: (tab: 'mood' | 'profile' | 'analytics') => void 
+}) {
   const searchParams = useSearchParams()
-  const [moods, setMoods] = useState<MoodEntry[]>([])
-  const [moodLoading, setMoodLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'mood' | 'profile' | 'analytics'>('mood')
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   // Handle URL parameters for tab selection
   useEffect(() => {
@@ -30,7 +30,17 @@ export default function Home() {
     if (tab && ['mood', 'profile', 'analytics'].includes(tab)) {
       setActiveTab(tab as 'mood' | 'profile' | 'analytics')
     }
-  }, [searchParams])
+  }, [searchParams, setActiveTab])
+
+  return null // This component only handles side effects
+}
+
+function HomeContent() {
+  const { user, loading } = useAuth()
+  const [moods, setMoods] = useState<MoodEntry[]>([])
+  const [moodLoading, setMoodLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'mood' | 'profile' | 'analytics'>('mood')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   const fetchMoods = useCallback(async () => {
     if (!user) return
@@ -159,7 +169,10 @@ export default function Home() {
   }  // Main authenticated app
   return (
     <div className="h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex flex-col">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />      <main className="flex-1 overflow-hidden">        {activeTab === 'mood' ? (
+      <Suspense fallback={<div>Loading...</div>}>
+        <SearchParamsHandler setActiveTab={setActiveTab} />
+      </Suspense>
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} /><main className="flex-1 overflow-hidden">        {activeTab === 'mood' ? (
           <div className="w-full py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6 lg:space-y-8 h-full overflow-y-auto">
             {/* Desktop Layout: Side by side */}
             <div className="hidden lg:grid lg:grid-cols-5 gap-8">              {/* Mood Form Section - Left Side (Increased width) */}
@@ -595,4 +608,25 @@ function getTimeAgo(date: string): string {
     const diffInDays = Math.floor(diffInHours / 24)
     return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`
   }
+}
+
+// Main component with Suspense boundary for useSearchParams
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xl font-semibold text-gray-700">Loading your mood tracker</p>
+            <p className="text-gray-500">Just a moment<span className="loading-dots"></span></p>
+          </div>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
+  )
 }
