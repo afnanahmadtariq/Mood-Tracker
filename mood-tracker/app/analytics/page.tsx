@@ -284,7 +284,7 @@ export default function Analytics() {
               <p className="text-gray-500 max-w-md mx-auto">
                 Start tracking your moods to see beautiful analytics and insights about your emotional patterns.
               </p>              <Link
-                href="/"
+                href="/?tab=mood"
                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 <span className="mr-2">📝</span>

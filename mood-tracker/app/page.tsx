@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from './context/AuthContext'
 import AuthWrapper from './components/AuthWrapper'
 import Header from './components/Header'
@@ -17,9 +18,18 @@ interface MoodEntry {
 
 export default function Home() {
   const { user, loading } = useAuth()
+  const searchParams = useSearchParams()
   const [moods, setMoods] = useState<MoodEntry[]>([])
   const [moodLoading, setMoodLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'mood' | 'profile' | 'analytics'>('mood')
+
+  // Handle URL parameters for tab selection
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['mood', 'profile', 'analytics'].includes(tab)) {
+      setActiveTab(tab as 'mood' | 'profile' | 'analytics')
+    }
+  }, [searchParams])
 
   const fetchMoods = useCallback(async () => {
     if (!user) return
