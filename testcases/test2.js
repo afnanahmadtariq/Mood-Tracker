@@ -16,7 +16,7 @@ async function test2() {
     try {
     // Navigate to homepage
     console.log('📍 Navigating to homepage...');
-    await driver.get(' http://18.204.228.168:3300/');
+    await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Clear all cookies to ensure we're not already logged in

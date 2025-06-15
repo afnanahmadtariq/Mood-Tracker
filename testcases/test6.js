@@ -15,7 +15,7 @@ async function test6() {
     .build();
     try {    // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get(' http://18.204.228.168:3300/');
+    await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
 
     // Check if already logged in, if not, perform login

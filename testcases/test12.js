@@ -17,7 +17,7 @@ async function test12() {
   try {
     // Navigate to homepage and login first
     console.log('📍 Navigating to homepage...');
-    await driver.get(' http://18.204.228.168:3300/');
+    await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
     // Check if already logged in, if not, perform login
@@ -126,7 +126,7 @@ async function test12() {
     console.log('🔒 Additional verification: Checking if actually logged out...');
     try {
       // Refresh the page to ensure we're not accessing cached content
-      await driver.get(' http://18.204.228.168:3300/');
+      await driver.get('http://mood-tracker-web:3000/');
       await driver.sleep(2000);
       
       // Check if we still see the AuthWrapper (login page)
