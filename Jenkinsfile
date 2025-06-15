@@ -18,7 +18,7 @@ pipeline {
         script {
             sh 'export JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}'
             sh 'cd testcases && docker-compose down -v --remove-orphans || true'
-            sh 'cd testcases && docker-compose up --build --abort-on-container-exit | tee test-results.log'
+            sh 'cd testcases && docker-compose up --build --abort-on-container-exit | tee test-results.html'
             sh 'cd testcases && docker-compose down -v'
         }
       }
@@ -38,7 +38,7 @@ pipeline {
   post {
     always {
       script {
-        def testResults = readFile('testcases/test-results.log')
+        def testResults = readFile('testcases/test-results.html')
         def buildStatus = currentBuild.currentResult
         def committerEmail = sh(script: "cd Test-Cases && git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
         

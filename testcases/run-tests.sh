@@ -74,6 +74,66 @@ else
 fi
 
 echo ""
+echo "--- Test 7: Enter profile pic URL -> Pic changed ---"
+if node test7.js; then
+    echo "✓ Test 7 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 7 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 8: Change profile DoB -> Profile DoB changed ---"
+if node test8.js; then
+    echo "✓ Test 8 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 8 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 9: Change profile Name -> Profile Name changed ---"
+if node test9.js; then
+    echo "✓ Test 9 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 9 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 10: Click view analytics in main page -> Analytics page opened ---"
+if node test10.js; then
+    echo "✓ Test 10 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 10 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 11: Click on profile dropdown and opened profile settings -> Profile page opened ---"
+if node test11.js; then
+    echo "✓ Test 11 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 11 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 12: Signout -> Redirects to login page ---"
+if node test12.js; then
+    echo "✓ Test 12 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 12 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
 echo "========================================="
 echo "Test Summary:"
 echo "Tests Passed: $TEST_PASSED"
