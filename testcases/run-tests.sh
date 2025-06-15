@@ -14,7 +14,7 @@ echo "Running Test Suite..."
 TEST_PASSED=0
 TEST_FAILED=0
 
-echo "--- Test 1: Homepage Load Test ---"
+echo "--- Test 1: Signup -> Redirects into app with same details ---"
 if node test1.js; then
     echo "✓ Test 1 PASSED"
     ((TEST_PASSED++))
@@ -24,7 +24,7 @@ else
 fi
 
 echo ""
-echo "--- Test 2: Login Page Navigation Test ---"
+echo "--- Test 2: Login -> Logins into app ---"
 if node test2.js; then
     echo "✓ Test 2 PASSED"
     ((TEST_PASSED++))
@@ -34,12 +34,42 @@ else
 fi
 
 echo ""
-echo "--- Test 3: Page Response Test ---"
+echo "--- Test 3: Navigate to analytics -> Nothing showing ---"
 if node test3.js; then
     echo "✓ Test 3 PASSED"
     ((TEST_PASSED++))
 else
     echo "✗ Test 3 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 4: Save a mood -> Mood is added to list ---"
+if node test4.js; then
+    echo "✓ Test 4 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 4 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 5: Navigate to analytics -> Now showing charts and graphs ---"
+if node test5.js; then
+    echo "✓ Test 5 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 5 FAILED"
+    ((TEST_FAILED++))
+fi
+
+echo ""
+echo "--- Test 6: Delete a mood -> That mood is deleted from the list ---"
+if node test6.js; then
+    echo "✓ Test 6 PASSED"
+    ((TEST_PASSED++))
+else
+    echo "✗ Test 6 FAILED"
     ((TEST_FAILED++))
 fi
 
