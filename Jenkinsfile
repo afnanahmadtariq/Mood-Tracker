@@ -14,8 +14,7 @@ pipeline {
         }
       }
     }
-    
-    stage('Build and Deploy') {
+      stage('Build and Deploy') {
       steps {
         script {
             sh 'export JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}'
@@ -23,6 +22,16 @@ pipeline {
             sh 'docker system prune -af || true'
             sh 'docker volume prune -f || true'
             sh 'docker-compose -p $PROJECT_NAME -f docker-compose.yml up -d --build'
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+            sh 'cd testcases && docker-compose down -v --remove-orphans || true'
+            sh 'cd testcases && docker-compose up --build --abort-on-container-exit'
+            sh 'cd testcases && docker-compose down -v'
         }
       }
     }

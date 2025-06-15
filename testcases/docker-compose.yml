@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  selenium-tests:
+    build: .
+    depends_on:
+      - mood-tracker-web
+    networks:
+      - test-network
+    environment:
+      - NODE_ENV=test
+
+  mood-tracker-web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MONGODB_URI: mongodb://mood-tracker-mongo:27017/moodtrackerdb
+        JWT_SECRET_FALLBACK: ${JWT_SECRET_FALLBACK:-default-secret}
+    ports:
+      - "3300:3000"
+    depends_on:
+      - mood-tracker-mongo
+    networks:
+      - test-network
+    environment:
+      - MONGODB_URI=mongodb://mood-tracker-mongo:27017/moodtrackerdb
+      - JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK:-default-secret}
+
+  mood-tracker-mongo:
+    image: mongo:8
+    networks:
+      - test-network
+    volumes:
+      - mongo_test_data:/data/db
+
+volumes:
+  mongo_test_data:
+
+networks:
+  test-network:
+    driver: bridge

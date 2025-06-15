@@ -1,0 +1,12 @@
+{
+  "name": "mood-tracker-tests",
+  "version": "1.0.0",
+  "description": "Selenium tests for Mood Tracker app",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test1.js && node test2.js && node test3.js"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.15.0"
+  }
+}
