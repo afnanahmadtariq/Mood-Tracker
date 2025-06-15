@@ -235,10 +235,9 @@ export default function Analytics() {
     
     return streak
   }
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+      <div className="h-full bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center overflow-y-auto">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
           <p className="text-xl font-semibold text-gray-700">Loading analytics...</p>
@@ -249,7 +248,7 @@ export default function Analytics() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+      <div className="h-full bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center overflow-y-auto">
         <div className="text-center space-y-4">
           <p className="text-xl font-semibold text-gray-700">Please log in to view analytics</p>
         </div>
@@ -258,10 +257,9 @@ export default function Analytics() {
   }
 
   const statistics = getStatistics()
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="h-full bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-y-auto">
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
