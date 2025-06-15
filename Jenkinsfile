@@ -4,6 +4,7 @@ pipeline {
   environment {
     PROJECT_NAME = 'MoodTracker'
     JWT_SECRET_FALLBACK = credentials('JWT_SECRET')
+    COMMITTER_EMAIL = sh(script: "cd Test-Cases && git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
   }
 
   stages {
@@ -24,17 +25,41 @@ pipeline {
             sh 'docker-compose -p $PROJECT_NAME -f docker-compose.yml up -d --build'
         }
       }
-    }
-
-    stage('Test') {
+    }    stage('Test') {
       steps {
         script {
             sh 'cd testcases && docker-compose down -v --remove-orphans || true'
-            sh 'cd testcases && docker-compose up --build --abort-on-container-exit'
+            sh 'cd testcases && docker-compose up --build --abort-on-container-exit | tee test-results.log'
             sh 'cd testcases && docker-compose down -v'
         }
       }
     }
 
+  }
+  post {
+    always {
+      script {
+        def testResults = readFile('testcases/test-results.log')
+        def buildStatus = currentBuild.currentResult
+        
+        emailext (
+          subject: "Mood Tracker Test Results - ${buildStatus}",
+          body: """
+            Test Results for Mood Tracker Application
+            
+            Build Status: ${buildStatus}
+            Build Number: ${BUILD_NUMBER}
+            Branch: ${GIT_BRANCH}
+            Committer: ${COMMITTER_EMAIL}
+            
+            Test Output:
+            ${testResults}
+            
+            Jenkins Build: ${BUILD_URL}
+          """,
+          to: "${COMMITTER_EMAIL}"
+        )
+      }
+    }
   }
 }
