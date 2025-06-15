@@ -60,3 +60,52 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([])
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    await dbConnect()
+    
+    const userAuth = getUserFromRequest(request)
+    if (!userAuth) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      )
+    }
+    
+    const { searchParams } = new URL(request.url)
+    const moodId = searchParams.get('id')
+    
+    if (!moodId) {
+      return NextResponse.json(
+        { error: 'Mood ID is required' }, 
+        { status: 400 }
+      )
+    }
+    
+    // Find and delete the mood entry, ensuring it belongs to the authenticated user
+    const deletedMood = await Mood.findOneAndDelete({ 
+      _id: moodId, 
+      userId: userAuth.userId 
+    })
+    
+    if (!deletedMood) {
+      return NextResponse.json(
+        { error: 'Mood entry not found or unauthorized' }, 
+        { status: 404 }
+      )
+    }
+    
+    return NextResponse.json({ message: 'Mood entry deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting mood:', error)
+    
+    return NextResponse.json(
+      { 
+        error: 'Unable to delete mood entry.',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, 
+      { status: 500 }
+    )
+  }
+}

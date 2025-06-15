@@ -22,6 +22,7 @@ export default function Home() {
   const [moods, setMoods] = useState<MoodEntry[]>([])
   const [moodLoading, setMoodLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'mood' | 'profile' | 'analytics'>('mood')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   // Handle URL parameters for tab selection
   useEffect(() => {
@@ -66,6 +67,31 @@ export default function Home() {
   }, [user, fetchMoods])
   const refreshMoods = () => {
     fetchMoods()
+  }
+  // Function to delete a mood entry
+  const deleteMood = async (moodId: string) => {
+    if (deleteConfirm !== moodId) {
+      setDeleteConfirm(moodId)
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/mood?id=${moodId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete mood entry')
+      }
+
+      // Refresh the moods list after successful deletion
+      refreshMoods()
+      setDeleteConfirm(null)
+    } catch (error) {
+      console.error('Error deleting mood:', error)
+      setDeleteConfirm(null)
+      // You could add a toast notification here in the future
+    }
   }
 
   // Helper function to get most common mood
@@ -204,8 +230,7 @@ export default function Home() {
                             key={moodEntry._id} 
                             className="card-hover border border-gray-200 rounded-xl p-4 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
                             style={{ animationDelay: `${index * 0.05}s` }}
-                          >
-                            <div className="flex justify-between items-start">
+                          >                            <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-3 mb-2">
                                   <div className="text-2xl">{getMoodEmoji(moodEntry.mood)}</div>
@@ -222,19 +247,44 @@ export default function Home() {
                                   </div>
                                 )}
                               </div>
-                              <div className="text-right text-xs text-gray-400 ml-4 flex-shrink-0">
-                                <div className="font-medium">
-                                  {new Date(moodEntry.date).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
-                                </div>
-                                <div>
-                                  {new Date(moodEntry.date).toLocaleTimeString('en-US', {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
-                                </div>
+                              <div className="flex items-start space-x-2">
+                                <div className="text-right text-xs text-gray-400 flex-shrink-0">
+                                  <div className="font-medium">
+                                    {new Date(moodEntry.date).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })}
+                                  </div>
+                                  <div>
+                                    {new Date(moodEntry.date).toLocaleTimeString('en-US', {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </div>
+                                </div>                                <button
+                                  onClick={() => deleteMood(moodEntry._id)}
+                                  className={`p-1 rounded-lg transition-colors duration-200 flex-shrink-0 ${
+                                    deleteConfirm === moodEntry._id 
+                                      ? 'text-red-600 bg-red-100 hover:bg-red-200' 
+                                      : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                                  }`}
+                                  title={deleteConfirm === moodEntry._id ? "Click again to confirm deletion" : "Delete mood entry"}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                                {deleteConfirm === moodEntry._id && (
+                                  <button
+                                    onClick={() => setDeleteConfirm(null)}
+                                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
+                                    title="Cancel deletion"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -378,8 +428,7 @@ export default function Home() {
                           key={moodEntry._id} 
                           className="card-hover border border-gray-200 rounded-xl p-3 sm:p-4 bg-gradient-to-r from-white to-gray-50 animate-slide-in"
                           style={{ animationDelay: `${index * 0.05}s` }}
-                        >
-                          <div className="flex justify-between items-start">
+                        >                          <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
                                 <div className="text-xl sm:text-2xl">{getMoodEmoji(moodEntry.mood)}</div>
@@ -396,19 +445,44 @@ export default function Home() {
                                 </div>
                               )}
                             </div>
-                            <div className="text-right text-xs text-gray-400 ml-3 sm:ml-4 flex-shrink-0">
-                              <div className="font-medium">
-                                {new Date(moodEntry.date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric'
-                                })}
-                              </div>
-                              <div>
-                                {new Date(moodEntry.date).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </div>
+                            <div className="flex items-start space-x-1 sm:space-x-2">
+                              <div className="text-right text-xs text-gray-400 flex-shrink-0">
+                                <div className="font-medium">
+                                  {new Date(moodEntry.date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric'
+                                  })}
+                                </div>
+                                <div>
+                                  {new Date(moodEntry.date).toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </div>
+                              </div>                              <button
+                                onClick={() => deleteMood(moodEntry._id)}
+                                className={`p-1 rounded-lg transition-colors duration-200 flex-shrink-0 ${
+                                  deleteConfirm === moodEntry._id 
+                                    ? 'text-red-600 bg-red-100 hover:bg-red-200' 
+                                    : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                                }`}
+                                title={deleteConfirm === moodEntry._id ? "Click again to confirm deletion" : "Delete mood entry"}
+                              >
+                                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                              {deleteConfirm === moodEntry._id && (
+                                <button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
+                                  title="Cancel deletion"
+                                >
+                                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
