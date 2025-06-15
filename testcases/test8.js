@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test8() {
-  console.log('Starting Test 8: Enter profile pic URL -> Pic changed');
+async function profilePictureUpdateVerification() {
+  console.log('Starting Test 8: Profile Picture Update - Verify entering profile picture URL updates the user\'s profile image');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -15,7 +15,7 @@ async function test8() {
     .build();
   
   try {    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
@@ -23,7 +23,7 @@ async function test8() {
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
+      console.log('🔐 User not authenticated, performing login...');
       
       // Look for login form or toggle to it
       try {
@@ -169,21 +169,20 @@ async function test8() {
         console.log(`   Current profile image src: ${newProfilePic}`);
         
         if (newProfilePic !== currentProfilePic) {
-          console.log('✓ Test 8 Passed: Profile picture successfully changed');
+          console.log('✓ Test 8 Passed: Profile picture was successfully updated with new URL');
           console.log(`   Old: ${currentProfilePic}`);
-          console.log(`   New: ${newProfilePic}`);
-        } else {
-          console.log('✓ Test 8 Passed: Profile picture URL updated (image may load async)');
+          console.log(`   New: ${newProfilePic}`);        } else {
+          console.log('✓ Test 8 Passed: Profile picture URL successfully updated (image may load asynchronously)');
         }
       } catch (e) {
-        console.log('✓ Test 8 Passed: Profile picture URL saved successfully (image element not found but input is correct)');
+        console.log('✓ Test 8 Passed: Profile picture URL saved successfully (image element not found but input validation confirmed)');
       }
     } else {
-      throw new Error(`Profile picture URL was not saved. Expected: ${testImageUrl}, Got: ${inputValue}`);
+      throw new Error(`Profile picture URL was not saved correctly. Expected: ${testImageUrl}, Received: ${inputValue}`);
     }
     
   } catch (error) {
-    console.log('✗ Test 8 Failed:', error.message);
+    console.log('✗ Test 8 Failed - Profile Picture Update:', error.message);
     
     // Check for error messages
     try {
@@ -200,4 +199,4 @@ async function test8() {
   }
 }
 
-test8();
+profilePictureUpdateVerification();

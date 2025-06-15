@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test12() {
-  console.log('Starting Test 12: Signout -> Redirects to login page');
+async function userSignoutRedirectionVerification() {
+  console.log('Starting Test 12: User Signout Verification - Verify signing out redirects user to login page');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,9 +14,8 @@ async function test12() {
     .setChromeOptions(options)
     .build();
   
-  try {
-    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+  try {    // Navigate to homepage and login first
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
@@ -24,7 +23,7 @@ async function test12() {
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login first...');
+      console.log('🔐 User not authenticated, performing login first...');
       
       // Look for login form or toggle to it
       try {
@@ -115,7 +114,7 @@ async function test12() {
     ));
     
     if (authWrapperElements.length > 0 && authenticatedContent.length === 0) {
-      console.log('✓ Test 12 Passed: Successfully signed out and redirected to login page');
+      console.log('✓ Test 12 Passed: User successfully signed out and redirected to login page');
       console.log(`   URL after logout: ${finalUrl}`);
       console.log(`   Found ${authWrapperElements.length} login page elements`);
       console.log(`   Authenticated content elements: ${authenticatedContent.length} (should be 0)`);
@@ -161,7 +160,7 @@ async function test12() {
     }
     
   } catch (error) {
-    console.log('✗ Test 12 Failed:', error.message);
+    console.log('✗ Test 12 Failed - User Signout Verification:', error.message);
     
     // Additional debugging
     try {
@@ -184,4 +183,4 @@ async function test12() {
   }
 }
 
-test12();
+userSignoutRedirectionVerification();

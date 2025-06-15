@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test9() {
-  console.log('Starting Test 9: Change profile DoB -> Profile DoB changed');
+async function profileDateOfBirthUpdateVerification() {
+  console.log('Starting Test 9: Profile Date of Birth Update - Verify changing profile date of birth updates user information correctly');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -15,7 +15,7 @@ async function test9() {
     .build();
   
   try {    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
@@ -23,7 +23,7 @@ async function test9() {
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
+      console.log('🔐 User not authenticated, performing login...');
       
       // Look for login form or toggle to it
       try {
@@ -170,10 +170,10 @@ async function test9() {
     // Verify the change was successful
     if (updatedDob === newDob) {
       if (currentDob && currentDob !== newDob) {
-        console.log('✓ Test 9 Passed: Date of birth successfully changed');
+        console.log('✓ Test 9 Passed: Date of birth was successfully updated in user profile');
         console.log(`   DoB changed from "${currentDob}" to "${updatedDob}"`);
       } else {
-        console.log('✓ Test 9 Passed: Date of birth set to new value');
+        console.log('✓ Test 9 Passed: Date of birth successfully updated to new value');
         console.log(`   DoB set to: "${updatedDob}"`);
       }
       
@@ -226,7 +226,7 @@ async function test9() {
       throw new Error(`Date of birth was not changed. Expected: ${newDob}, Actual: ${updatedDob}`);
     }
     } catch (error) {
-    console.log('✗ Test 9 Failed:', error.message);
+    console.log('✗ Test 9 Failed - Profile Date of Birth Update:', error.message);
     console.log('📊 Error details:', error.stack);
     
     // Gather debugging information
@@ -283,4 +283,4 @@ async function test9() {
   }
 }
 
-test9();
+profileDateOfBirthUpdateVerification();

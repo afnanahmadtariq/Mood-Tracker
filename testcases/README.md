@@ -4,35 +4,35 @@ This directory contains headless Selenium tests for the Mood Tracker application
 
 ## Test Files
 
-- `test1.js` - Signup functionality: Registers new user and verifies redirect with correct details
-- `test2.js` - Login functionality: Authenticates user and verifies app access (includes cookie clearing)
-- `test3.js` - Analytics navigation: Clicks "View Analytics" button and verifies analytics page opens
-- `test4.js` - Analytics empty state: Navigate to analytics and verify nothing showing (no data)
-- `test5.js` - Mood creation: Adds a mood entry and verifies it appears in the list
-- `test6.js` - Analytics with data: Navigate to analytics and verify charts/graphs are showing
-- `test7.js` - Mood deletion: Deletes a mood entry and verifies it's removed from the list
-- `test8.js` - Profile picture update: Changes profile picture URL and verifies the change
-- `test9.js` - Profile DoB update: Changes date of birth in profile and verifies the change
-- `test10.js` - Profile name update: Changes first and last name in profile and verifies the change
-- `test11.js` - Profile dropdown navigation: Uses profile dropdown to access profile settings
-- `test12.js` - Sign out functionality: Signs out user and verifies redirect to login page
+- `test1.js` - **User Registration**: Registers new user and verifies successful redirect to application with correct user details
+- `test2.js` - **User Authentication**: Authenticates user and verifies successful access to application (includes session clearing)
+- `test3.js` - **Analytics Navigation**: Clicks "View Analytics" button and verifies analytics page opens correctly
+- `test4.js` - **Empty Analytics Verification**: Navigate to analytics and verify empty state display when no data available
+- `test5.js` - **Mood Entry Creation**: Adds a mood entry and verifies it appears in the mood journey list
+- `test6.js` - **Analytics Data Visualization**: Navigate to analytics and verify charts and graphs display with data
+- `test7.js` - **Mood Entry Deletion**: Deletes a mood entry and verifies it's removed from the mood journey list
+- `test8.js` - **Profile Picture Update**: Changes profile picture URL and verifies the image update
+- `test9.js` - **Profile Date of Birth Update**: Changes date of birth in profile and verifies the information update
+- `test10.js` - **Profile Name Update**: Changes first and last name in profile and verifies the information update
+- `test11.js` - **Profile Dropdown Navigation**: Uses profile dropdown to access profile settings page
+- `test12.js` - **User Signout Verification**: Signs out user and verifies redirect to login page
 
 ## Test Flow
 
 The tests are designed to run in sequence to create a complete user journey:
 
-1. **Test 1**: User signs up → Redirects to app with same details as signed up
-2. **Test 2**: User logs in → Successfully logins into app
-3. **Test 3**: Click view analytics in main page → Analytics page opened
-4. **Test 4**: Navigate to analytics → Nothing showing (no data yet)
-5. **Test 5**: Save a mood → Mood is added to list
-6. **Test 6**: Navigate to analytics → Now showing charts and graphs
-7. **Test 7**: Delete a mood → That mood is deleted from the list
-8. **Test 8**: Change profile picture URL → Profile picture changed
-9. **Test 9**: Change profile DoB → Profile DoB changed
-10. **Test 10**: Change profile Name → Profile Name changed
-11. **Test 11**: Click on profile dropdown and opened profile settings → Profile page opened
-12. **Test 12**: Signout → Redirects to login page
+1. **Test 1**: User Registration - Verify successful signup redirects to application with correct user details
+2. **Test 2**: User Authentication - Verify successful login grants access to application
+3. **Test 3**: Analytics Navigation - Verify clicking analytics button on main page opens analytics page
+4. **Test 4**: Empty Analytics Verification - Verify analytics page displays empty state when no data available
+5. **Test 5**: Mood Entry Verification - Verify saving a mood entry adds it to the mood journey list
+6. **Test 6**: Analytics Data Visualization - Verify analytics page displays charts and graphs when data is available
+7. **Test 7**: Mood Entry Deletion - Verify deleting a mood entry removes it from the mood journey list
+8. **Test 8**: Profile Picture Update - Verify entering profile picture URL updates the user's profile image
+9. **Test 9**: Profile Date of Birth Update - Verify changing profile date of birth updates user information correctly
+10. **Test 10**: Profile Name Update - Verify changing profile name updates user information correctly
+11. **Test 11**: Profile Dropdown Navigation - Verify clicking profile dropdown opens profile settings page
+12. **Test 12**: User Signout Verification - Verify signing out redirects user to login page
 
 ## Running Tests
 
@@ -66,32 +66,32 @@ node test12.js
 
 ## Test Structure
 
-- Tests use headless Chrome in Docker containers
-- Each test navigates to proper pages before testing
-- Tests look for proper UI feedback elements to verify results
-- Tests are self-contained but designed to run sequentially
-- Tests exit with appropriate codes and provide detailed logging
-- Simple echo outputs for Jenkins logs
-- Cookie clearing implemented in Test 2 for reliable login testing
+- Tests use headless Chrome in Docker containers for reliable execution
+- Each test navigates to appropriate pages before performing test operations
+- Tests verify proper UI feedback elements to confirm expected results
+- Tests are self-contained but designed to run sequentially for complete user journey
+- Tests exit with appropriate codes and provide detailed, professional logging
+- Comprehensive output formatting for Jenkins CI/CD integration
+- Session clearing implemented in Test 2 for reliable authentication testing
 
 ## Test Categories
 
 ### Authentication Tests
-- Test 1: User registration
-- Test 2: User login (with cookie clearing)
-- Test 12: User sign out
+- Test 1: User registration and verification
+- Test 2: User login authentication (with session clearing)
+- Test 12: User signout and redirection
 
 ### Core Functionality Tests
-- Test 3: Analytics page navigation
-- Test 4: Analytics empty state (no data)
-- Test 5: Mood entry creation
-- Test 6: Analytics with data
-- Test 7: Mood entry deletion
+- Test 3: Analytics page navigation verification
+- Test 4: Analytics empty state verification (no data available)
+- Test 5: Mood entry creation and list verification
+- Test 6: Analytics data visualization verification
+- Test 7: Mood entry deletion and removal verification
 
 ### Profile Management Tests
-- Test 8: Profile picture update
-- Test 9: Date of birth update
-- Test 10: Name update
+- Test 8: Profile picture URL update verification
+- Test 9: Profile date of birth update verification
+- Test 10: Profile name update verification
 
 ### Navigation Tests
-- Test 11: Profile dropdown navigation
+- Test 11: Profile dropdown navigation verification

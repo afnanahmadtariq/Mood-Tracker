@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test7() {
-  console.log('Starting Test 7: Delete a mood -> That mood is deleted from the list');
+async function moodDeletionVerification() {
+  console.log('Starting Test 7: Mood Entry Deletion - Verify deleting a mood entry removes it from the mood journey list');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,13 +14,13 @@ async function test7() {
     .setChromeOptions(options)
     .build();
   
-  try {    // Navigate to homepage and login first    console.log('📍 Navigating to homepage...');
+  try {    // Navigate to homepage and login first    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
       // Check if already logged in by looking for authenticated content
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
       if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
+      console.log('🔐 User not authenticated, performing login...');
       
       // Look for login form or toggle to it
       try {
@@ -213,14 +213,14 @@ async function test7() {
     
     // Check if mood was deleted successfully
     if (finalMoodCount < initialMoodCount) {
-      console.log('✓ Test 7 Passed: Mood was successfully deleted from the list');
+      console.log('✓ Test 7 Passed: Mood entry was successfully deleted from the mood journey list');
       console.log(`   Mood count decreased from ${initialMoodCount} to ${finalMoodCount}`);
     } else if (finalMoodCount === initialMoodCount) {
       // Check if the page content has changed (maybe the mood was deleted but count is same due to pagination or other factors)
       const pageText = await driver.findElement(By.tagName('body')).getText();
       
       if (pageText.includes('deleted') || pageText.includes('removed')) {
-        console.log('✓ Test 7 Passed: Mood deletion confirmed by page content (count unchanged due to UI behavior)');
+        console.log('✓ Test 7 Passed: Mood entry deletion confirmed by page content verification (count unchanged due to UI behavior)');
       } else {
         throw new Error(`Mood was not deleted from list. Count remained ${finalMoodCount}`);
       }
@@ -229,7 +229,7 @@ async function test7() {
     }
     
   } catch (error) {
-    console.log('✗ Test 7 Failed:', error.message);
+    console.log('✗ Test 7 Failed - Mood Entry Deletion:', error.message);
     
     // Check for error messages
     try {
@@ -254,4 +254,4 @@ async function test7() {
   }
 }
 
-test7();
+moodDeletionVerification();

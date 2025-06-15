@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test11() {
-  console.log('Starting Test 11: Click on profile dropdown and opened profile settings -> Profile page opened');
+async function profileDropdownNavigationVerification() {
+  console.log('Starting Test 11: Profile Dropdown Navigation - Verify clicking profile dropdown opens profile settings page');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,9 +14,8 @@ async function test11() {
     .setChromeOptions(options)
     .build();
   
-  try {
-    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+  try {    // Navigate to homepage and login first
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
@@ -24,7 +23,7 @@ async function test11() {
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'Analytics')]"));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
+      console.log('🔐 User not authenticated, performing login...');
       
       // Look for login form or toggle to it
       try {
@@ -131,18 +130,17 @@ async function test11() {
     const urlContainsProfile = finalUrl.includes('profile') || finalUrl.includes('settings') || finalUrl.includes('tab=profile');
     
     if (urlContainsProfile && profilePageContent.length > 0) {
-      console.log('✓ Test 11 Passed: Profile page opened successfully via dropdown');
+      console.log('✓ Test 11 Passed: Profile settings page opened successfully via dropdown navigation');
       console.log(`   URL changed to: ${finalUrl}`);
-      console.log(`   Found ${profilePageContent.length} profile page elements`);
-    } else if (profilePageContent.length > 0) {
-      console.log('✓ Test 11 Passed: Profile content loaded successfully (SPA navigation)');
+      console.log(`   Found ${profilePageContent.length} profile page elements`);    } else if (profilePageContent.length > 0) {
+      console.log('✓ Test 11 Passed: Profile content loaded successfully (Single Page Application navigation)');
       console.log(`   Found ${profilePageContent.length} profile page elements`);
       console.log(`   URL: ${finalUrl}`);
     } else if (urlContainsProfile) {
-      console.log('✓ Test 11 Passed: Navigated to profile URL');
+      console.log('✓ Test 11 Passed: Successfully navigated to profile settings URL');
       console.log(`   URL changed to: ${finalUrl}`);
     } else {
-      throw new Error('Profile page did not open properly');
+      throw new Error('Profile page navigation failed - profile page did not open properly');
     }
     
     // Additional verification - check for specific profile form elements
@@ -182,7 +180,7 @@ async function test11() {
     }
     
   } catch (error) {
-    console.log('✗ Test 11 Failed:', error.message);
+    console.log('✗ Test 11 Failed - Profile Dropdown Navigation:', error.message);
     
     // Additional debugging
     try {
@@ -200,4 +198,4 @@ async function test11() {
   }
 }
 
-test11();
+profileDropdownNavigationVerification();

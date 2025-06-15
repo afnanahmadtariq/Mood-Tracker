@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test5() {
-  console.log('Starting Test 5: Save a mood -> Mood is added to your mood journey list');
+async function moodSaveAndListVerification() {
+  console.log('Starting Test 5: Mood Entry Verification - Verify saving a mood entry adds it to the mood journey list');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -15,7 +15,7 @@ async function test5() {
     .build();
   
   try {    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
@@ -24,14 +24,13 @@ async function test5() {
     const isLoggedIn = await driver.findElements(By.css('nav button[class*="bg-blue-600"]'));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
-      
-      // Look for login form or toggle to it
+      console.log('🔐 User not authenticated, performing login...');
+        // Look for login form or toggle to it
       try {
         await driver.wait(until.elementLocated(By.id('email')), 2000);
         console.log('   Login form found directly');
       } catch (e) {
-        console.log('   Login form not visible, looking for login link...');        try {
+        console.log('   Login form not visible, looking for login link...');try {
           // Look for toggle form button - check if we're on login form by looking for email field
           await driver.wait(until.elementLocated(By.id('email')), 2000);
           console.log('   Found login form');
@@ -447,7 +446,7 @@ async function test5() {
     console.log(`   Expected increase: ${finalMoodCount > initialMoodCount ? 'YES' : 'NO'}`);
     
     if (finalMoodCount > initialMoodCount) {
-      console.log('✓ Test 5 Passed: Mood was successfully added to the mood journey list');
+      console.log('✓ Test 5 Passed: Mood entry was successfully saved and added to the mood journey list');
       console.log(`   Mood count increased from ${initialMoodCount} to ${finalMoodCount}`);
       
       // Try to find and verify the newly added mood entry
@@ -500,7 +499,7 @@ async function test5() {
     }
     
   } catch (error) {
-    console.log('✗ Test 5 Failed:', error.message);
+    console.log('✗ Test 5 Failed - Mood Entry Verification:', error.message);
     console.log('📊 Error details:', error.stack);
     
     // Gather debugging information
@@ -569,4 +568,4 @@ async function test5() {
   }
 }
 
-test5();
+moodSaveAndListVerification();

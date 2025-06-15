@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test1() {
-  console.log('Starting Test 1: Signup -> Redirects into app with same details as signed up');
+async function userSignupAndRedirection() {
+  console.log('Starting Test 1: User Registration - Verify successful signup redirects to application with correct user details');
     const options = new chrome.Options();
   options.addArguments('--headless');
   options.addArguments('--no-sandbox');
@@ -18,16 +18,16 @@ async function test1() {
     .build();
   
   try {    // Navigate to homepage
-    console.log('📍 Navigating to homepage...');
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     
     // Wait for page to load with more specific checks
-    console.log('⏳ Waiting for page to load...');
+    console.log('⏳ Waiting for page to load completely...');
     try {
       await driver.wait(until.titleContains('Mood'), 10000);
       console.log('✓ Page title loaded successfully');
     } catch (e) {
-      console.log('⚠️ Title check failed, continuing anyway:', e.message);
+      console.log('⚠️ Page title check failed, continuing with test execution:', e.message);
     }
     
     // Check if page loaded by looking for any content
@@ -35,15 +35,14 @@ async function test1() {
       const body = await driver.findElement(By.tagName('body'));
       const text = await body.getText();
       return text.length > 0;
-    }, 10000);
-    console.log('✓ Page content loaded');
+    }, 10000);    console.log('✓ Page content loaded successfully');
       // First, verify we're on the login page
-    console.log('🔍 Checking if we\'re on the login page...');
+    console.log('🔍 Verifying current page is the login interface...');
     await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Welcome Back')]")), 10000);
-    console.log('✓ Confirmed we\'re on the login page');
+    console.log('✓ Confirmed user is on the login page');
     
     // Look for and click the "Create your account" button to navigate to signup
-    console.log('🔍 Looking for signup navigation button...');
+    console.log('🔍 Locating user registration navigation button...');
     const signupButton = await driver.wait(
       until.elementLocated(By.xpath("//*[contains(text(), 'Create your account')]")), 
       10000
@@ -51,45 +50,41 @@ async function test1() {
     console.log('✓ Found "Create your account" button');
     
     await signupButton.click();
-    console.log('🔄 Clicked signup button, navigating to registration form...');
-    
-    // Wait for the registration form to load
-    console.log('⏳ Waiting for registration form to load...');
+    console.log('🔄 Successfully clicked signup button, navigating to registration form...');
+      // Wait for the registration form to load
+    console.log('⏳ Waiting for user registration form to load...');
     await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Join Mood Tracker')]")), 10000);
-    console.log('✓ Registration form loaded successfully');
+    console.log('✓ User registration form loaded successfully');
     
 
     const testEmail = `test@example.com`;
     const testFirstName = 'TestUser';
     const testLastName = 'Selenium';
-    const testPassword = 'password123';
-      // Fill out registration form
-    console.log('📝 Filling out registration form...');
+    const testPassword = 'password123';      // Fill out registration form
+    console.log('📝 Completing user registration form with test data...');
     try {
-      console.log(`Filling firstName with: ${testFirstName}`);
+      console.log(`   Entering first name: ${testFirstName}`);
       await driver.wait(until.elementLocated(By.id('firstName')), 5000);
       await driver.findElement(By.id('firstName')).sendKeys(testFirstName);
       
-      console.log(`Filling lastName with: ${testLastName}`);
+      console.log(`   Entering last name: ${testLastName}`);
       await driver.wait(until.elementLocated(By.id('lastName')), 5000);
       await driver.findElement(By.id('lastName')).sendKeys(testLastName);
       
-      console.log(`Filling email with: ${testEmail}`);
+      console.log(`   Entering email address: ${testEmail}`);
       await driver.wait(until.elementLocated(By.id('email')), 5000);
       await driver.findElement(By.id('email')).sendKeys(testEmail);
-      
-      console.log(`Filling password with: ${testPassword}`);
+        console.log(`   Entering password: ${'*'.repeat(testPassword.length)}`);
       await driver.wait(until.elementLocated(By.id('password')), 5000);
       await driver.findElement(By.id('password')).sendKeys(testPassword);
       
-      console.log('✓ All form fields filled successfully');
-    } catch (e) {
-      console.log('✗ Error filling form fields:', e.message);
-      throw new Error(`Failed to fill registration form: ${e.message}`);
+      console.log('✓ All registration form fields completed successfully');    } catch (e) {
+      console.log('✗ Error completing registration form fields:', e.message);
+      throw new Error(`Failed to complete registration form: ${e.message}`);
     }
     
     // Submit the form
-    console.log('🚀 Submitting registration form...');
+    console.log('🚀 Submitting user registration form...');
     try {
       const submitSelectors = [
         "//button[contains(text(), 'Create Account')]",
@@ -108,28 +103,26 @@ async function test1() {
           continue;
         }
       }
-      
-      if (!submitButton) {
-        throw new Error('Could not find submit button');
+        if (!submitButton) {
+        throw new Error('Could not locate submit button for registration form');
       }
       
       await submitButton.click();
-      console.log('✓ Submit button clicked');
+      console.log('✓ Registration form submit button clicked successfully');
       
       // Wait a moment for the form submission to process
       await driver.sleep(2000);
       
     } catch (e) {
-      console.log('✗ Error submitting form:', e.message);
+      console.log('✗ Error submitting registration form:', e.message);
       throw new Error(`Failed to submit registration form: ${e.message}`);
     }
       // Wait for redirect and check if we're logged in with the same details
-    console.log('⏳ Waiting for redirect after signup...');
-    
-    // First, wait for the URL to change (indicating successful auth)
+    console.log('⏳ Waiting for post-registration redirect...');
+      // First, wait for the URL to change (indicating successful auth)
     await driver.wait(async () => {
       const currentUrl = await driver.getCurrentUrl();
-      console.log(`Current URL: ${currentUrl}`);
+      console.log(`   Current URL: ${currentUrl}`);
       // URL should still be the same since it's a SPA, but we should see auth state change
       return true;
     }, 2000);
@@ -145,13 +138,12 @@ async function test1() {
         return false;
       }
     }, 20000);
-    
-    // Wait for the main app interface to load
-    console.log('⏳ Waiting for main app interface to load...');
+      // Wait for the main app interface to load
+    console.log('⏳ Waiting for main application interface to load...');
     await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Mood Tracker') and not(contains(text(), 'Join'))]")), 15000);
     
     // Wait specifically for the header with user information
-    console.log('⏳ Waiting for user header to appear...');
+    console.log('⏳ Waiting for authenticated user header to appear...');
     await driver.wait(async () => {
       try {
         // Look for header elements that indicate authenticated state
@@ -163,7 +155,7 @@ async function test1() {
     }, 15000);
     
     // Now try to find the user's name in the interface
-    console.log('✅ Checking if user details match signup...');
+    console.log('✅ Verifying user details match registration information...');
     
     // Try multiple selectors to find the user's name
     let userNameElement = null;
@@ -182,19 +174,17 @@ async function test1() {
         try {
           await driver.wait(until.elementLocated(By.xpath(selector)), 5000);
           userNameElement = await driver.findElement(By.xpath(selector));
-          userNameText = await userNameElement.getText();
-          console.log(`Found user name with selector: ${selector}`);
-          console.log(`User text found: ${userNameText}`);
+          userNameText = await userNameElement.getText();          console.log(`   Found user name using selector: ${selector}`);
+          console.log(`   User text found: ${userNameText}`);
           break;
         } catch (e) {
-          console.log(`Selector failed: ${selector} - ${e.message}`);
+          console.log(`   Selector failed: ${selector} - ${e.message}`);
           continue;
         }
       }
-      
-      if (!userNameElement) {
+        if (!userNameElement) {
         // As a fallback, let's check if we can access the profile section
-        console.log('🔍 Trying to access profile section to verify user details...');
+        console.log('🔍 Attempting to access profile section to verify user details...');
         const profileButtons = await driver.findElements(By.xpath("//*[contains(text(), 'Profile') or contains(text(), 'profile')]"));
         if (profileButtons.length > 0) {
           await profileButtons[0].click();
@@ -253,13 +243,12 @@ async function test1() {
         throw new Error(`User details not found and could not verify through page source: ${e.message}`);
       }
     }
-    
-  } catch (error) {
-    console.log('✗ Test 1 Failed:', error.message);
+      } catch (error) {
+    console.log('✗ Test 1 Failed - User Registration and Redirection:', error.message);
     process.exit(1);
   } finally {
     await driver.quit();
   }
 }
 
-test1();
+userSignupAndRedirection();

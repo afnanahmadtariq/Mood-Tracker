@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test10() {
-  console.log('Starting Test 10: Change profile Name -> Profile Name changed');
+async function profileNameUpdateVerification() {
+  console.log('Starting Test 10: Profile Name Update - Verify changing profile name updates user information correctly');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -15,7 +15,7 @@ async function test10() {
     .build();
   
   try {    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
     
@@ -23,7 +23,7 @@ async function test10() {
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'My Moods') or contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
+      console.log('🔐 User not authenticated, performing login...');
       
       // Look for login form or toggle to it
       try {
@@ -173,10 +173,10 @@ async function test10() {
     
     if (updatedFirstName === newFirstName && updatedLastName === newLastName) {
       if ((currentFirstName && currentFirstName !== newFirstName) || (currentLastName && currentLastName !== newLastName)) {
-        console.log('✓ Test 10 Passed: Profile name successfully changed');
+        console.log('✓ Test 10 Passed: Profile name was successfully updated in user profile');
         console.log(`   Name changed from "${currentFirstName} ${currentLastName}" to "${updatedFirstName} ${updatedLastName}"`);
       } else {
-        console.log('✓ Test 10 Passed: Profile name set to new values');
+        console.log('✓ Test 10 Passed: Profile name successfully updated to new values');
         console.log(`   Name set to: "${updatedFirstName} ${updatedLastName}"`);
       }
       
@@ -245,7 +245,7 @@ async function test10() {
       
       throw new Error(`Profile name was not changed correctly. Expected: ${newFirstName} ${newLastName}, Actual: ${updatedFirstName} ${updatedLastName}`);
     }  } catch (error) {
-    console.log('✗ Test 10 Failed:', error.message);
+    console.log('✗ Test 10 Failed - Profile Name Update:', error.message);
     console.log('📊 Error details:', error.stack);
     
     // Gather debugging information
@@ -309,4 +309,4 @@ async function test10() {
   }
 }
 
-test10();
+profileNameUpdateVerification();

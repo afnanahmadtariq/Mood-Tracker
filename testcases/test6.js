@@ -1,8 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-async function test6() {
-  console.log('Starting Test 6: Navigate to analytics -> Now showing charts and graphs');
+async function analyticsDataVisualizationVerification() {
+  console.log('Starting Test 6: Analytics Data Visualization - Verify analytics page displays charts and graphs when data is available');
   
   const options = new chrome.Options();
   options.addArguments('--headless');
@@ -14,7 +14,7 @@ async function test6() {
     .setChromeOptions(options)
     .build();
     try {    // Navigate to homepage and login first
-    console.log('📍 Navigating to homepage...');
+    console.log('🏠 Navigating to application homepage...');
     await driver.get('http://mood-tracker-web:3000/');
     await driver.wait(until.titleContains('Mood'), 5000);
 
@@ -22,7 +22,7 @@ async function test6() {
     const isLoggedIn = await driver.findElements(By.xpath("//*[contains(text(), 'Analytics') or contains(text(), 'Profile')]"));
     
     if (isLoggedIn.length === 0) {
-      console.log('🔐 Not logged in, performing login...');
+      console.log('🔐 User not authenticated, performing login...');
       
       // Look for login form or toggle to it
       try {
@@ -41,8 +41,8 @@ async function test6() {
       await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Analytics')]")), 10000);
     }
 
-    // Navigate to Analytics page
-    console.log('� Navigating to Analytics page...');
+    // Navigate to Analytics page    // Navigate to Analytics page
+    console.log('📊 Navigating to Analytics page...');
     const analyticsButton = await driver.findElement(By.xpath(
       "//button[contains(text(), 'View Analytics') or contains(text(), 'Analytics') or contains(text(), 'View Charts')] | " +
       "//a[contains(text(), 'View Analytics') or contains(text(), 'Analytics') or contains(text(), 'View Charts')] | " +
@@ -55,11 +55,9 @@ async function test6() {
     await driver.executeScript("arguments[0].click();", analyticsButton);
     
     // Wait for analytics page to load
-    console.log('⏳ Waiting for analytics page to load...');
-    await driver.sleep(2000);
-
-    // Check for charts/graphs (should exist if moods have been added in previous tests)
-    console.log('📈 Checking for charts and graphs...');
+    console.log('⏳ Waiting for analytics page content to load...');
+    await driver.sleep(2000);    // Check for charts/graphs (should exist if moods have been added in previous tests)
+    console.log('📈 Verifying presence of charts and data visualizations...');
     const charts = await driver.findElements(By.xpath(
       "//canvas | " +
       "//*[contains(@class, 'chart') or contains(@class, 'analytics') or contains(@class, 'recharts') or contains(@class, 'chartjs')] | " +
@@ -67,22 +65,22 @@ async function test6() {
     ));
     
     if (charts.length > 0) {
-      console.log('✓ Test 6 Passed: Analytics page shows charts and graphs');
-      console.log(`   Found ${charts.length} chart/graph elements`);
+      console.log('✓ Test 6 Passed: Analytics page successfully displays charts and data visualization elements');
+      console.log(`   Found ${charts.length} chart and graph elements on the page`);
     } else {
-      throw new Error('Analytics page did not show charts/graphs as expected. Make sure test5 ran successfully first to add mood data.');
+      throw new Error('Analytics page visualization failed - no charts or graphs found. Ensure mood data exists from previous test execution.');
     }    
   } catch (error) {
-    console.log('✗ Test 6 Failed:', error.message);
+    console.log('✗ Test 6 Failed - Analytics Data Visualization:', error.message);
     
-    // Additional debugging
+    // Additional debugging information
     try {
       const currentUrl = await driver.getCurrentUrl();
       const pageText = await driver.findElement(By.tagName('body')).getText();
-      console.log(`   Current URL: ${currentUrl}`);
+      console.log(`   Current application URL: ${currentUrl}`);
       console.log(`   Page content sample: "${pageText.substring(0, 200)}..."`);
     } catch (e) {
-      // Debugging failed
+      // Debug information retrieval failed
     }
     
     process.exit(1);
@@ -91,4 +89,4 @@ async function test6() {
   }
 }
 
-test6()
+analyticsDataVisualizationVerification();
