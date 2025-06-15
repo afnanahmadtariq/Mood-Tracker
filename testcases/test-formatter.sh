@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Test the formatter with sample output
+echo "Testing the test results formatter..."
+
+# Create sample test output
+cat > test-sample.txt << 'EOF'
+Starting Test 1: Signup -> Redirects into app with same details as signed up
+📍 Navigating to homepage...
+🔍 Looking for signup form...
+📝 Filling out registration form...
+🚀 Submitting registration form...
+⏳ Waiting for redirect after signup...
+✅ Test 1 passed: User successfully signed up and logged in
+
+Starting Test 2: Login with correct credentials
+📍 Navigating to login page...
+🔍 Looking for login form...
+📝 Entering email and password...
+🚀 Clicking login button...
+❌ Test 2 failed: Login button not found
+
+Starting Test 3: Dashboard accessibility
+📍 Navigating to dashboard...
+✓ Checking if dashboard elements are present...
+✅ Test 3 passed: Dashboard loaded successfully
+EOF
+
+# Run the formatter
+node format-test-results.js test-sample.txt test-sample.html
+
+echo "✅ Sample HTML report generated: test-sample.html"
+echo "🌐 Open test-sample.html in your browser to see the formatted results"
+
+# Clean up
+rm test-sample.txt
