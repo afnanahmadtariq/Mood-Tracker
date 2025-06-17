@@ -233,7 +233,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/yourusername/Mood-Tracker/issues) page
+1. Check the [Issues](https://github.com/afnanahmadtariq/Mood-Tracker/issues) page
 2. Create a new issue with detailed information
 3. Include error logs and environment details
 
