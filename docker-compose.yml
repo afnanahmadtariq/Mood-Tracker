@@ -16,6 +16,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://mongo_db-testcase:27017/moodtrackerdb
       - JWT_SECRET_FALLBACK=${JWT_SECRET_FALLBACK}
+
       
   mongo:
     image: mongo:8
